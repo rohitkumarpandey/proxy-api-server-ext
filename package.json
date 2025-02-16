@@ -9,13 +9,15 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+   "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "proxy-api-server.helloWorld",
-        "title": "Hello World"
+        "command": "proxy-api-server.start-server",
+        "title": "Start Proxy API Server"
       }
     ]
   },
