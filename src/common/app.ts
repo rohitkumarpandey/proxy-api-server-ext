@@ -10,7 +10,11 @@ const loadLandingTab = (context: ExtensionContext) => {
 
     const scriptPathOnDisk = Uri.file(path.join(context.extensionPath, 'src', 'web', 'script.js'));
     const stylePathOnDisk = Uri.file(path.join(context.extensionPath, 'src', 'web', 'style.css'));
-    const uris = { script: scriptPathOnDisk, style: stylePathOnDisk };
+    const logoPathOnDisk = Uri.file(path.join(context.extensionPath, 'src', 'assets', 'logo.webp'));
+    const uris: { [identifire: string]: Uri } = {};
+    uris[CONSTANT.IDENTIFIER.SCRIPT_URI] = scriptPathOnDisk;
+    uris[CONSTANT.IDENTIFIER.STYLE_URI] = stylePathOnDisk;
+    uris[CONSTANT.IDENTIFIER.LOGO_URI] = logoPathOnDisk;
     addNewWebViewTab(CONSTANT.EXTENSION.STATUSBAR_BUTTON, CONSTANT.EXTENSION.TITLE, htmlContent, context, uris);
 }
 

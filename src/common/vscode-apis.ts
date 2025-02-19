@@ -15,7 +15,7 @@ const registerCommands = (command: Command, context: vscode.ExtensionContext): v
     return disposables;
 }
 
-const addNewWebViewTab = (id: string, title: string, content: string, context: vscode.ExtensionContext, ...uris: { script?: vscode.Uri, style?: vscode.Uri }[]): void => {
+const addNewWebViewTab = (id: string, title: string, content: string, context: vscode.ExtensionContext, uris: { [identifier: string]: vscode.Uri }): void => {
     const panel = vscode.window.createWebviewPanel(
         id,
         title,
@@ -24,16 +24,11 @@ const addNewWebViewTab = (id: string, title: string, content: string, context: v
             enableScripts: true,
         }
     );
-    if (uris.length > 0) {
-        uris.forEach(uri => {
-            if (uri.script) {
-                const scriptUri = panel.webview.asWebviewUri(uri.script);
-                content = content.replace('%SCRIPT_URI%', scriptUri.toString());
-            }
-            if (uri.style) {
-                const styleUri = panel.webview.asWebviewUri(uri.style);
-                content = content.replace('%STYLE_URI%', styleUri.toString());
-            }
+    if (uris && Object.keys(uris).length > 0) {
+        Object.keys(uris).forEach(key => {
+            const uri = uris[key];
+            const scriptUri = panel.webview.asWebviewUri(uri);
+            content = content.replace(key, scriptUri.toString());
         });
     }
     panel.webview.html = content;

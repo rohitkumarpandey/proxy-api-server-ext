@@ -1,16 +1,203 @@
+<!-- filepath: /Users/rohitpandey/Documents/project/proxy-api-server-ext/src/web/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Tab</title>
+    <link rel="stylesheet" href="%STYLE_URI%">
+    <script src="%SCRIPT_URI%"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
-    <h1>Hello from My VS Code Extension!</h1>
-    <p>This is a custom webview tab opened by your extension.</p>
-    <button onclick="alert('Button Clicked!')">Click Me</button>
+    <div class="pas-container">
+        <div class="pas-app-title">
+            <img src="%LOGO_URI%" alt="logo" class="pas-logo">
+            <h5>Proxy API Server</h5>
+        </div>
+        <div class="pas-content">
+            <div class="pas-collection-section">
+                <div class="pas-collection-container">
+                    <div class="pas-collection-header">
+                        <div>Collections</div>
+                        <div class="add-collection-btn">+</div>
+                    </div>
+                    <div class="pas-collections">
+                        <div class="pas-collection">
+                            <button class="collapsible">Dummy Apis</button>
+                            <div class="content">
+                                <div class="api-request-details">
+                                    <div class="request-type request-type-get">
+                                        GET
+                                    </div>
+                                    <div class="request-url">http://localhost:5256/api/v1/dummy</div>
+                                </div>
+
+                                <div class="api-request-details">
+                                    <div class="request-type request-type-post">
+                                        POST
+                                    </div>
+                                    <div class="request-url">http://localhost:5256/api/v1/dummy</div>
+                                </div>
+
+                                <div class="api-request-details">
+                                    <div class="request-type request-type-put">
+                                        PUT
+                                    </div>
+                                    <div class="request-url">http://localhost:5256/api/v1/dummy</div>
+                                </div>
+                                
+                                <div class="api-request-details">
+                                    <div class="request-type request-type-delete">
+                                        DELETE
+                                    </div>
+                                    <div class="request-url">http://localhost:5256/api/v1/dummy</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pas-collection">
+                            <button class="collapsible">Profile Apis</button>
+                            <div class="content">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
+                                    incididunt ut
+                                    labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                                    ullamco
+                                    laboris nisi ut aliquip ex ea commodo consequat.</p>
+                            </div>
+                        </div>
+                        <div class="pas-collection">
+                            <button class="collapsible">Facebook Apis</button>
+                            <div class="content">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
+                                    incididunt ut
+                                    labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                                    ullamco
+                                    laboris nisi ut aliquip ex ea commodo consequat.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pas-settings">
+                    <div class="pas-setting">
+                        Setting
+                    </div>
+                </div>
+            </div>
+            <div class="pas-header">
+                
+                <div class="pas-server-form-container">
+                    <div class="pas-breadcrumbs">
+                        Dummy Apis/New Request
+                    </div>
+                    <div class="pas-url-container">
+                        <select name="request-type" id="request-type-options" class="pas-request-type-select">
+                            <option class="request-type-get" value="server1">GET</option>
+                            <option class="request-type-post" value="server2">POST</option>
+                            <option class="request-type-put" value="server3">PUT</option>
+                            <option class="request-type-post" value="server3">PATCH</option>
+                            <option class="request-type-delete" value="server3">DELETE</option>
+                        </select>
+                        <input type="text" class="pas-url-input" value="http://localhost" disabled>
+                        <input type="text" class="pas-url-input" value="5256" disabled>
+                        <input type="text" class="pas-url-input" placeholder="Enter the endpoint starting with /">
+                    </div>
+
+                    <div class="pas-response-config">
+                        <div class="pas-config-auth">Authorization</div>
+                        <div class="pas-config-header">Headers</div>
+                        <div class="pas-config-params">Params</div>
+                        <div class="pas-config-body active-config">Body</div>
+                    </div>
+
+                    <div class="pas-response-section-config">
+                        <div class="pas-response-body-config">
+                            <div class="pas-response-body-config-header">
+                                <div class="pas-response-type-option">
+                                    <ul>
+                                        <li class="active-radio-btn">
+                                            <input type="radio" name="response-status" id="response-status-200" checked>
+                                            <label for="response-status-200">200</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" name="response-status" id="response-status-400">
+                                            <label for="response-status-400">400</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" name="response-status" id="response-status-500">
+                                            <label for="response-status-500">500</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="pas-response-body-container">
+                                <div class="pas-response-body-container-header">
+                                    <div class="pas-response-body-tab active-tab">
+                                        <div class="tab-label">200 Success</div>
+                                        <div class="close-tab">+</div>
+                                    </div>
+                                    <div class="pas-response-body-tab">
+                                        <div class="tab-label">400 Bad Request</div>
+                                        <div class="close-tab">+</div>
+                                    </div>
+                                    <div class="new-tab-btn">+</div>
+                                </div>
+                                <div class="pas-response-body-container-content">
+                                    <div class="pas-response-body-container-content-header">
+                                        <div class="response-type-options">
+                                            <ul>
+                                                <li>
+                                                    <input type="radio" name="response-type" id="response-type-none">
+                                                    <label for="response-body-type-none">None</label>
+                                                </li>
+                                                <li>
+                                                    <input type="radio" name="response-type" id="response-type-string">
+                                                    <label for="response-body-type-string">String</label>
+                                                </li>
+                                                <li class="active-radio-btn">
+                                                    <input type="radio" name="response-type" id="response-type-json"
+                                                        checked>
+                                                    <label for="response-body-type-json">Json</label>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="response-formatting-options">
+                                            <div class="pas-beautify">
+                                                Beautify
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pas-response-body">
+                                        <div class="pas-response" contenteditable="true">
+
+                                            {
+                                            "status": 200,
+                                            "message": "Success",
+                                            "data": {
+                                            "id": 1,
+                                            "name": "John Doe",
+                                            "email": "john.doe@example.com",
+                                            "roles": ["admin", "user"],
+                                            "createdAt": "2025-02-19T12:34:56Z",
+                                            "updatedAt": "2025-02-19T12:34:56Z"
+                                            }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
