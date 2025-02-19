@@ -15,15 +15,42 @@ const registerCommands = (command: Command, context: vscode.ExtensionContext): v
     return disposables;
 }
 
-const addNewWebViewTab = (id: string, title: string, content: string): void => {
-    vscode.window.createWebviewPanel(
+const addNewWebViewTab = (id: string, title: string, content: string, context: vscode.ExtensionContext, ...uris: { script?: vscode.Uri, style?: vscode.Uri }[]): void => {
+    const panel = vscode.window.createWebviewPanel(
         id,
         title,
         vscode.ViewColumn.One,
         {
             enableScripts: true,
         }
-    ).webview.html = content;
+    );
+    if (uris.length > 0) {
+        uris.forEach(uri => {
+            if (uri.script) {
+                const scriptUri = panel.webview.asWebviewUri(uri.script);
+                content = content.replace('%SCRIPT_URI%', scriptUri.toString());
+            }
+            if (uri.style) {
+                const styleUri = panel.webview.asWebviewUri(uri.style);
+                content = content.replace('%STYLE_URI%', styleUri.toString());
+            }
+        });
+    }
+    panel.webview.html = content;
+    panel.webview.onDidReceiveMessage(
+        message => {
+            switch (message.command) {
+                case 'callTypeScriptMethod':
+                    callTypeScriptMethod(message.text);
+                    return;
+            }
+        },
+        undefined,
+        context.subscriptions
+    );
+}
+const callTypeScriptMethod = (text: string) => {
+    vscode.window.showInformationMessage(`Called from JavaScript: ${text}`);
 }
 
 const addStatusBarItem = (alignment: vscode.StatusBarAlignment, priority: number, command: CommandDetails): vscode.StatusBarItem => {
