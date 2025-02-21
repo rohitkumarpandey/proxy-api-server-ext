@@ -232,6 +232,7 @@ input[type="radio"] {
 .pas-server-form-container {
     padding: 0 8px;
     border-radius: 4px;
+    height: 85vh;
 }
 
 .pas-url-container,
@@ -403,4 +404,16 @@ input[type="radio"] {
 
 .pas-response {
     outline: none;
+}
+.pas-config-table {
+    display: flex;
+    width: 100%;
+    font-size: 12px;
+}
+.pas-config-table > table {
+    width: 100%;
+}
+.pas-config-table > table > tbody > tr > td {
+   text-align: center;
+   border: 1px solid var(--light-gray);
 }

@@ -22,13 +22,15 @@ export const CONSTANT = {
     IDENTIFIER: {
         SCRIPT_URI: '%SCRIPT_URI%',
         STYLE_URI: '%STYLE_URI%',
-        LOGO_URI: '%LOGO_URI%'
+        LOGO_URI: '%LOGO_URI%',
+        GLOBAL_STATE: 'pas-state',
+        WEB_STATE: 'pas-web-state'
     }
 }
 
 export const COMMAND: Command = {
-    START_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.startServer`, callback: () => { return () => startServer() }, title: "Start Server" },
-    STOP_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.stopServer`, callback: () => { return () => stopServer() }, title: "Stop Server" },
-    START_STOP_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.startStopServer`, callback: () => { return () => startStopServer() }, title: "Start/Stop Server", tooltip: "Click to start or stop the server" },
+    START_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.startServer`, callback: (context: ExtensionContext) => { return () => startServer(context) }, title: "Start Server" },
+    STOP_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.stopServer`, callback: (context: ExtensionContext) => { return () => stopServer(context) }, title: "Stop Server" },
+    START_STOP_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.startStopServer`, callback: (context: ExtensionContext) => { return () => startStopServer(context) }, title: "Start/Stop Server", tooltip: "Click to start or stop the server" },
     LANDING_TAB: { name: `${CONSTANT.EXTENSION.NAME}.landingTab`, callback: (context: ExtensionContext) => { return () => loadLandingTab(context); }, title: `$(arrow-swap) Proxy API Server`, tooltip: CONSTANT.TOOLTIP.LANDING_TAB }
 }

@@ -53,7 +53,7 @@
                                     </div>
                                     <div class="request-url">http://localhost:5256/api/v1/dummy</div>
                                 </div>
-                                
+
                                 <div class="api-request-details">
                                     <div class="request-type request-type-delete">
                                         DELETE
@@ -91,11 +91,14 @@
                 </div>
             </div>
             <div class="pas-header">
-                
+
+                <!-- start mock response container -->
                 <div class="pas-server-form-container">
                     <div class="pas-breadcrumbs">
                         Dummy Apis/New Request
                     </div>
+                    <button id="pas-live-btn" class="pas-live-btn">Live</button>
+
                     <div class="pas-url-container">
                         <select name="request-type" id="request-type-options" class="pas-request-type-select">
                             <option class="request-type-get" value="server1">GET</option>
@@ -106,15 +109,46 @@
                         </select>
                         <input type="text" class="pas-url-input" value="http://localhost" disabled>
                         <input type="text" class="pas-url-input" value="5256" disabled>
-                        <input type="text" class="pas-url-input" placeholder="Enter the endpoint starting with /">
+                        <input id="pas-endpoint" name="pas-endpoint" type="text" class="pas-url-input" placeholder="Enter the endpoint starting with /">
                     </div>
 
-                    <div class="pas-response-config">
+                    <!-- <div class="pas-response-config">
                         <div class="pas-config-auth">Authorization</div>
                         <div class="pas-config-header">Headers</div>
                         <div class="pas-config-params">Params</div>
                         <div class="pas-config-body active-config">Body</div>
-                    </div>
+                    </div> -->
+                    <!-- <div class="pas-response-config-section">
+                        <div id="pas-request-body">
+                            <div class="pas-config-table pas-request-body">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Key</th>
+                                            <th colspan="2">Required</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Required Body</td>
+                                            <td>Yes</td>
+                                            <td>No</td>
+                                            <td>
+                                                <select name="request-type" id="request-type-options"
+                                                    class="pas-request-type-select">
+                                                    <option class="request-type-get" value="server1">200 </option>
+                                                    <option class="request-type-post" value="server2">POST</option>
+                                                    <option class="request-type-put" value="server3">PUT</option>
+                                                    <option class="request-type-post" value="server3">PATCH</option>
+                                                    <option class="request-type-delete" value="server3">DELETE</option>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div> -->
 
                     <div class="pas-response-section-config">
                         <div class="pas-response-body-config">
@@ -173,6 +207,10 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="pas-response-config">
+                                        <div class="pas-config-body active-config">Body</div>
+                                        <div class="pas-config-header">Headers</div>
+                                    </div>
                                     <div class="pas-response-body">
                                         <div class="pas-response" contenteditable="true">
 
@@ -195,6 +233,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- end mock response container -->
             </div>
         </div>
     </div>
