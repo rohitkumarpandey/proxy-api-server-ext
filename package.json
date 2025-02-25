@@ -23,8 +23,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./ && npm run web-build",
-    "web-build": "npm run --prefix ./src/web-view build",
+    "compile:web-build": "npm run --prefix ./web-view build && npm run compile",
+    "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
