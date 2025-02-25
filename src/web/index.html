@@ -27,7 +27,14 @@
                 <div class="pas-collection-container">
                     <div class="pas-collection-header">
                         <div>Collections</div>
-                        <div class="add-collection-btn">+</div>
+                        <div id="add-collection-btn" class="add-collection-btn" onclick="addCollectionForm()">+</div>
+                    </div>
+                    <div id="pas-collection-input" class="pas-collection-input-container">
+                        <input id="add-collection-input" type="text" class="pas-collection-input" placeholder="Enter collection name">
+                        <div class="pas-collection-input-actions">
+                            <div id="add-collection" class="add-collection" onclick="addCollection()" >+</div>
+                            <div id="cancel-collection" class="cancel-collection" onclick="clearAndCloseNewCollection()">x</div>
+                        </div>
                     </div>
                     <div class="pas-collections">
                         <div class="pas-collection">
@@ -97,19 +104,22 @@
                     <div class="pas-breadcrumbs">
                         Dummy Apis/New Request
                     </div>
-                    <button id="pas-live-btn" class="pas-live-btn">Live</button>
-
                     <div class="pas-url-container">
-                        <select name="request-type" id="request-type-options" class="pas-request-type-select">
-                            <option class="request-type-get" value="server1">GET</option>
-                            <option class="request-type-post" value="server2">POST</option>
-                            <option class="request-type-put" value="server3">PUT</option>
-                            <option class="request-type-post" value="server3">PATCH</option>
-                            <option class="request-type-delete" value="server3">DELETE</option>
+                        <select name="request-type" id="request-type-options" class="pas-request-type-select"
+                            onchange="changeRequestType(event)">
+                            <option class="request-type-get" value="get">GET</option>
+                            <option class="request-type-post" value="post">POST</option>
+                            <option class="request-type-put" value="put">PUT</option>
+                            <option class="request-type-post" value="patch">PATCH</option>
+                            <option class="request-type-delete" value="delete">DELETE</option>
                         </select>
                         <input type="text" class="pas-url-input" value="http://localhost" disabled>
                         <input type="text" class="pas-url-input" value="5256" disabled>
-                        <input id="pas-endpoint" name="pas-endpoint" type="text" class="pas-url-input" placeholder="Enter the endpoint starting with /">
+                        <input id="pas-url-endpoint" name="pas-endpoint" type="text" class="pas-url-input"
+                            placeholder="Enter the endpoint starting with /">
+                        <div class="live-server-button">
+                            <div id="pas-live-btn" class="pas-live-btn">Live</div>
+                        </div>
                     </div>
 
                     <!-- <div class="pas-response-config">
@@ -156,15 +166,18 @@
                                 <div class="pas-response-type-option">
                                     <ul>
                                         <li class="active-radio-btn">
-                                            <input type="radio" name="response-status" id="response-status-200" checked>
+                                            <input type="radio" name="response-status" id="response-status-200"
+                                                value="200" onclick="changeResponseStatus(event)">
                                             <label for="response-status-200">200</label>
                                         </li>
                                         <li>
-                                            <input type="radio" name="response-status" id="response-status-400">
+                                            <input type="radio" name="response-status" id="response-status-400"
+                                                value="400" onclick="changeResponseStatus(event)">
                                             <label for="response-status-400">400</label>
                                         </li>
                                         <li>
-                                            <input type="radio" name="response-status" id="response-status-500">
+                                            <input type="radio" name="response-status" id="response-status-500"
+                                                value="500" onclick="changeResponseStatus(event)">
                                             <label for="response-status-500">500</label>
                                         </li>
                                     </ul>
@@ -212,7 +225,8 @@
                                         <div class="pas-config-header">Headers</div>
                                     </div>
                                     <div class="pas-response-body">
-                                        <div class="pas-response" contenteditable="true">
+                                        <div id="pas-response" class="pas-response" contenteditable="true"
+                                            oninput="updateResponse(event)">
 
                                             {
                                             "status": 200,
