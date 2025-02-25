@@ -1,3 +1,77 @@
-body{
-  background-color: red;
+@use './variables.scss' as vars;
+
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Poppins", serif;
 }
+
+ul {
+  list-style: none;
+  text-decoration: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 8px;
+    cursor: pointer;
+    text-decoration: none;
+
+    a {
+      text-decoration: none;
+    }
+
+    &:hover {
+      background-color: white;
+
+      a {
+        color: vars.$brand-color;
+      }
+    }
+  }
+}
+
+.App {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  flex-direction: column;
+}
+
+
+.pas-app-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 8%;
+
+  .pas-logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  h5 {
+    margin-left: 4px;
+  }
+
+}
+
+.pas-container {
+  display: flex;
+  background-color: vars.$light-white;
+  flex-grow: 1;
+
+  .pas-sidebar {
+    width: 18%;
+  }
+
+  .pas-content {
+    display: flex;
+    width: 100%;
+    background-color: white;
+    border-radius: 2px;
+    margin: 8px;
+  }
+}
+
+.sidebar {}
