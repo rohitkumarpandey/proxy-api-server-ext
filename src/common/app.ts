@@ -1,8 +1,16 @@
 import * as fs from 'fs';
 import { ExtensionContext, StatusBarAlignment, Uri } from 'vscode';
-import { registerCommands, addNewWebViewTab, addStatusBarItem } from './vscode-apis';
+import { registerCommands, addNewWebViewTab, addStatusBarItem, saveState } from './vscode-apis';
 import { COMMAND, CONSTANT } from './constant';
 import path from 'path';
+import { MessageReceiver } from '../model/message';
+import { State } from '../model/state';
+import { startServer } from './server';
+
+const saveStateAndStartServer = (state: State, context: ExtensionContext) => {
+    saveState(context, state);
+    startServer(context);
+}
 
 const loadLandingTab = (context: ExtensionContext) => {
     const htmlPath = path.join(context.extensionPath, 'src', 'web', 'index.html');
@@ -10,8 +18,19 @@ const loadLandingTab = (context: ExtensionContext) => {
 
     const scriptPathOnDisk = Uri.file(path.join(context.extensionPath, 'src', 'web', 'script.js'));
     const stylePathOnDisk = Uri.file(path.join(context.extensionPath, 'src', 'web', 'style.css'));
-    const uris = { script: scriptPathOnDisk, style: stylePathOnDisk };
-    addNewWebViewTab(CONSTANT.EXTENSION.STATUSBAR_BUTTON, CONSTANT.EXTENSION.TITLE, htmlContent, context, uris);
+    const logoPathOnDisk = Uri.file(path.join(context.extensionPath, 'src', 'assets', 'logo.webp'));
+    const uris: { [identifire: string]: Uri } = {};
+    uris[CONSTANT.IDENTIFIER.SCRIPT_URI] = scriptPathOnDisk;
+    uris[CONSTANT.IDENTIFIER.STYLE_URI] = stylePathOnDisk;
+    uris[CONSTANT.IDENTIFIER.LOGO_URI] = logoPathOnDisk;
+    const messageReceiver = (message: MessageReceiver<State>) => {
+        switch (message.command) {
+            case 'saveStateAndStartServer':
+                saveStateAndStartServer(message.data, context);
+                return;
+        }
+    }
+    addNewWebViewTab(CONSTANT.EXTENSION.STATUSBAR_BUTTON, CONSTANT.EXTENSION.TITLE, htmlContent, context, uris, messageReceiver);
 }
 
 const initializeApp = (context: ExtensionContext) => {
@@ -28,3 +47,4 @@ export {
     deactivateApp,
     loadLandingTab
 }
+
