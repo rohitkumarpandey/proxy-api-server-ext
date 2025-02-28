@@ -1,0 +1,31 @@
+@use './variables.scss' as vars;
+
+.btn-primary {
+    border-radius: 4px;
+    background-color: white;
+    border: 1px solid vars.$brand-color;
+}
+
+.btn-secondary {
+    border-radius: 4px;
+    background-color: vars.$brand-color;
+    color: white;
+    font-weight: bold;
+    border: 2px solid vars.$brand-color;
+
+    &:hover {
+        cursor: pointer;
+        background-color: white;
+        color: vars.$brand-color;
+    }
+}
+
+.btn-sm {
+    padding: 8px 16px;
+}
+.btn-md {
+    padding: 8px 16px;
+}
+.btn-lg {
+    padding: 8px 16px;
+}

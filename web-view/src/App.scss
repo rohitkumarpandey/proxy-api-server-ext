@@ -1,40 +1,36 @@
 @use './variables.scss' as vars;
+@use './button.scss';
 
 body {
   padding: 0;
   margin: 0;
   font-family: "Poppins", serif;
+  font-size: 12px !important;
+  width: 100%;
+  overflow: hidden;
 }
 
 ul {
+  padding: 0 !important;
+  margin: 0 !important;
   list-style: none;
-  text-decoration: none;
-  padding: 0;
-  margin: 0;
-
-  li {
-    padding: 8px;
-    cursor: pointer;
-    text-decoration: none;
-
-    a {
-      text-decoration: none;
-    }
-
-    &:hover {
-      background-color: white;
-
-      a {
-        color: vars.$brand-color;
-      }
-    }
-  }
 }
+
+input[type="radio"] {
+  accent-color: vars.$brand-color;
+  color: vars.$brand-color;
+  margin-top: -3px;
+  vertical-align: middle;
+}
+
+.radio-ehecked {
+  color: vars.$brand-color;
+  font-weight: bold;
+}
+
 
 .App {
   display: flex;
-  height: 100vh;
-  width: 100%;
   flex-direction: column;
 }
 
@@ -43,35 +39,302 @@ ul {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 8%;
+  height: 6vh;
+  color: vars.$brand-color;
 
   .pas-logo {
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
   }
 
-  h5 {
+  h4 {
+    margin: 0;
+    padding: 0;
     margin-left: 4px;
+    font-size: 14px;
+    font-weight: bold;
   }
 
 }
 
 .pas-container {
   display: flex;
+  height: 94vh;
   background-color: vars.$light-white;
-  flex-grow: 1;
 
   .pas-sidebar {
+    display: flex;
+    height: 100%;
     width: 18%;
+    background-color: white;
   }
 
   .pas-content {
     display: flex;
     width: 100%;
-    background-color: white;
+    height: 100%;
     border-radius: 2px;
-    margin: 8px;
   }
 }
 
-.sidebar {}
+.sidebar {
+  display: flex;
+  width: 100%;
+  height: 100%;
+
+  ul {
+    width: 100%;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+  }
+}
+
+.server-container {
+  display: flex;
+  flex-direction: column;
+  margin: 6px;
+  width: 100%;
+  height: 100%;
+
+  .server-breadcrumb {
+    font-weight: bold;
+  }
+
+  .server-form-container {
+    height: 98%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .server-request-config-container {
+      height: 40%;
+      border-radius: 4px;
+      padding: 0 4px;
+      background-color: white;
+      .server-breadcrumb {
+        height: 8%;
+      }
+
+      .server-url-container {
+        height: 18%;
+        display: flex;
+        width: 100%;
+        align-items: center;
+
+        input,
+        select {
+          padding: 8px;
+          border: 1px solid black;
+          border-radius: 4px;
+          margin: 4px;
+        }
+
+        input[disabled] {
+          border: 1px solid vars.$light-gray;
+          color: vars.$light-gray;
+        }
+
+        .server-request-type-select {
+          width: 6%;
+        }
+
+        .server-url-domain {
+          width: 110px;
+          text-align: center;
+        }
+
+        .server-url-port {
+          text-align: center;
+          width: 50px;
+        }
+
+        .server-url-endpoint {
+          flex-grow: 1;
+        }
+
+        .live-server-button {
+          flex-grow: .1;
+        }
+      }
+
+      .server-request-validator {
+        display: flex;
+        flex-direction: column;
+        margin-top: 2px;
+        height: 72%;
+        .server-request-validator-options {
+          display: flex;
+          align-items: center;
+          font-weight: bold;
+          &>div {
+            border-bottom: 2px solid transparent;
+
+            &:not(:first-of-type) {
+              margin-left: 24px;
+            }
+
+            &:hover {
+              cursor: pointer;
+              border-color: vars.$brand-color;
+            }
+
+          }
+
+        }
+
+        .server-request-validator-container {
+          max-height: 100%;
+          overflow-y: auto;
+          background-color: vars.$light-white;
+          border-radius: 4px;
+          padding: 4px;
+        }
+      }
+    }
+
+    .server-response-container {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      margin-top: 8px;
+      border-radius: 4px;
+      height: 60%;
+
+      .server-response-status {
+        background-color: white;
+        display: flex;
+        align-items: center;
+        padding: 8px 4px !important;
+        color: vars.$light-gray;
+
+        li {
+          font-size: 12px;
+          display: inline;
+          padding: 0;
+
+          &:not(:first-of-type) {
+            margin-left: 14px;
+          }
+
+          &>label {
+            margin-left: 4px;
+          }
+
+          &>label:hover,
+          &>input:hover {
+            cursor: pointer;
+          }
+        }
+      }
+
+      .response-type-tab-container {
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+
+        .response-type-tab {
+          display: flex;
+          align-items: center;
+          background-color: vars.$brand-color;
+          color: white;
+          padding: 2px 8px;
+          border-radius: 0 8px 0 0;
+
+          .tab-label {
+            margin-right: 10px;
+          }
+
+          .close-tab {
+            margin-left: auto;
+            font-size: 20px;
+            transform: rotate(45deg);
+
+            &:hover {
+              cursor: pointer;
+              scale: 1.2;
+            }
+          }
+        }
+
+        .new-response-type-tab-btn {
+          font-size: 20px;
+          margin-left: 4px;
+
+          &:hover {
+            cursor: pointer;
+            scale: 1.2;
+          }
+        }
+      }
+
+      .response-data-type-config {
+        display: flex;
+        align-items: center;
+        background-color: white;
+        padding: 8px 4px;
+        border-radius: 4px;
+
+        .response-data-type {
+          display: flex;
+          flex-grow: 1;
+
+          li {
+            font-size: 12px;
+            display: inline;
+            padding: 0;
+
+            &:not(:first-of-type) {
+              margin-left: 14px;
+            }
+
+            &>label {
+              margin-left: 4px;
+            }
+
+            &>label:hover,
+            &>input:hover {
+              cursor: pointer;
+            }
+          }
+        }
+
+        .response-data-type-formatter {
+          flex-grow: 1;
+          display: flex;
+          justify-content: flex-end;
+          margin-right: 20px;
+          color: vars.$brand-color;
+        }
+      }
+
+      .response-body-config {
+        display: flex;
+        align-items: center;
+        padding: 8px 4px;
+        font-size: 14px;
+        &>div {
+          border-bottom: 2px solid transparent;
+
+          &:hover {
+            border-color: vars.$brand-color;
+            cursor: pointer;
+          }
+          &:not(:first-of-type) {
+            margin-left: 15px;
+          }
+        }
+      }
+      .response-body-content {
+        height: 100%;
+        background-color: white;
+      }
+    }
+
+
+  }
+
+}

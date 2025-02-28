@@ -1,5 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import About from './components/about.component';
+import { BrowserRouter as Router } from 'react-router-dom';
 import Sidebar from './components/sidebar.component';
 import './App.scss';
 import Server from './components/server.component';
@@ -13,10 +12,11 @@ function App() {
             <Sidebar />
           </div>
           <div className='pas-content'>
-            <Routes>
+            <Server/>
+            {/* <Routes>
               <Route path="/" element={<Server />} />
               <Route path="/about" element={<About />} />
-            </Routes>
+            </Routes> */}
           </div>
         </div>
         </div>
