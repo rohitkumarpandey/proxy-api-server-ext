@@ -1,6 +1,6 @@
 node_modules
 out
-.vscode
 *.log
 *test*
 .DS_Store
+tsconfig.tsbuildinfo

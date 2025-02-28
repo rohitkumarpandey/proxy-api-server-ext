@@ -13,12 +13,12 @@ const saveStateAndStartServer = (state: State, context: ExtensionContext) => {
 }
 
 const loadLandingTab = (context: ExtensionContext) => {
-    const htmlPath = path.join(context.extensionPath, 'src', 'web', 'index.html');
+    const htmlPath = path.join(context.extensionPath, 'web-view','dist', 'index.html');
     let htmlContent = fs.readFileSync(htmlPath, 'utf8');
 
-    const scriptPathOnDisk = Uri.file(path.join(context.extensionPath, 'src', 'web', 'script.js'));
-    const stylePathOnDisk = Uri.file(path.join(context.extensionPath, 'src', 'web', 'style.css'));
-    const logoPathOnDisk = Uri.file(path.join(context.extensionPath, 'src', 'assets', 'logo.webp'));
+    const scriptPathOnDisk = Uri.file(path.join(context.extensionPath, 'web-view','dist', 'index.js'));
+    const stylePathOnDisk = Uri.file(path.join(context.extensionPath, 'web-view','dist', 'index.css'));
+    const logoPathOnDisk = Uri.file(path.join(context.extensionPath, 'web-view','dist', 'logo.webp'));
     const uris: { [identifire: string]: Uri } = {};
     uris[CONSTANT.IDENTIFIER.SCRIPT_URI] = scriptPathOnDisk;
     uris[CONSTANT.IDENTIFIER.STYLE_URI] = stylePathOnDisk;

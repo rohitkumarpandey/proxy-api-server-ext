@@ -20,9 +20,9 @@ export const CONSTANT = {
     EXTENSION: extension,
     TOOLTIP: tooltip,
     IDENTIFIER: {
-        SCRIPT_URI: '%SCRIPT_URI%',
-        STYLE_URI: '%STYLE_URI%',
-        LOGO_URI: '%LOGO_URI%',
+        SCRIPT_URI: '/index.js',
+        STYLE_URI: '/index.css',
+        LOGO_URI: '/logo.webp',
         GLOBAL_STATE: 'pas-state',
         WEB_STATE: 'pas-web-state'
     }

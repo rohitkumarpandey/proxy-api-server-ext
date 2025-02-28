@@ -36,7 +36,7 @@ const addNewWebViewTab = <T>(id: string, title: string, content: string, context
         Object.keys(uris).forEach(key => {
             const uri = uris[key];
             const scriptUri = panel.webview.asWebviewUri(uri);
-            content = content.replace(key, scriptUri.toString());
+            content = content.replaceAll(key, scriptUri.toString());
         });
     }
     panel.webview.html = content;
