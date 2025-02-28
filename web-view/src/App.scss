@@ -28,10 +28,32 @@ input[type="radio"] {
   font-weight: bold;
 }
 
-
 .App {
   display: flex;
   flex-direction: column;
+}
+
+.api-method {
+  background-color: whitesmoke;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+
+  &.api-method-get {
+    color: green;
+  }
+
+  &.api-method-post {
+    color: orange;
+  }
+
+  &.api-method-put {
+    color: royalblue;
+  }
+
+  &.api-method-delete {
+    color: red;
+  }
 }
 
 
@@ -54,7 +76,6 @@ input[type="radio"] {
     font-size: 14px;
     font-weight: bold;
   }
-
 }
 
 .pas-container {
@@ -66,6 +87,7 @@ input[type="radio"] {
     display: flex;
     height: 100%;
     width: 18%;
+    overflow-x: hidden;
     background-color: white;
   }
 
@@ -81,6 +103,138 @@ input[type="radio"] {
   display: flex;
   width: 100%;
   height: 100%;
+  flex-direction: column;
+  padding: 0 6px;
+
+  .collection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: bold;
+    padding: 4px 2px;
+    border-bottom: 1px solid vars.$light-gray ;
+
+    .collection-add-btn {
+      font-size: 18px;
+      height: 20px;
+      width: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border-radius: 50%;
+      padding-bottom: 1px;
+
+      &:hover {
+        cursor: pointer;
+        font-weight: bold;
+        background-color: whitesmoke;
+      }
+    }
+  }
+
+  .accordion-item:first-of-type {
+    margin-top: 4px;
+  }
+
+  .accordion-button {
+    padding: 6px 10px;
+    width: 100%;
+    border: 0 !important;
+    font-size: 12px;
+    outline: none;
+    border-left: 4px solid transparent !important;
+    border-radius: 0 !important;
+
+    .collapsed {
+      border-color: transparent !important;
+    }
+
+    &:hover {
+      background-color: vars.$light-white !important;
+    }
+  }
+
+  .accordion-body {
+    margin-bottom: 2px;
+    padding: 4px 0 4px 14px;
+    width: 100%;
+    overflow: hidden;
+
+    &:hover {
+      cursor: pointer;
+      background-color: vars.$light-white !important;
+    }
+
+    .api-container {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      font-size: 10px;
+      .api-live-container  {
+        height: 6px;
+        width: 6px;
+        border: 1px solid transparent;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 2px;
+
+        >div {
+          height: 80%;
+          width: 80%;
+          border-radius: 50%;
+          background-color: transparent;
+        }
+        &.api-live {
+          border-color: vars.$brand-color;
+          >div {
+            background-color: vars.$brand-color;
+          }
+        }
+      }
+    }
+
+    .api-url {
+      font-weight: bolder;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 100%; // Ensure the parent container has a fixed or maximum width
+    }
+  }
+
+  .accordion-item {
+    border: 0;
+  }
+
+  .accordion-button:focus {
+    box-shadow: none;
+  }
+
+  .accordion-button:not(.collapsed) {
+    background-color: white !important;
+    box-shadow: none !important;
+    border-color: vars.$brand-color !important;
+  }
+
+  .accordion-button::after {
+    display: none;
+  }
+
+  .accordion-button::before {
+    content: '';
+    height: 10px;
+    width: 10px;
+    margin-right: 5px;
+    background-size: contain !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23212529' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M2 5L8 11L14 5'/%3e%3c/svg%3e");
+    rotate: -90deg;
+  }
+
+  .accordion-button:not(.collapsed)::before {
+    rotate: 0deg;
+  }
 
   ul {
     width: 100%;
@@ -115,6 +269,7 @@ input[type="radio"] {
       border-radius: 4px;
       padding: 0 4px;
       background-color: white;
+
       .server-breadcrumb {
         height: 8%;
       }
@@ -166,10 +321,12 @@ input[type="radio"] {
         flex-direction: column;
         margin-top: 2px;
         height: 72%;
+
         .server-request-validator-options {
           display: flex;
           align-items: center;
           font-weight: bold;
+
           &>div {
             border-bottom: 2px solid transparent;
 
@@ -181,9 +338,7 @@ input[type="radio"] {
               cursor: pointer;
               border-color: vars.$brand-color;
             }
-
           }
-
         }
 
         .server-request-validator-container {
@@ -316,6 +471,7 @@ input[type="radio"] {
         align-items: center;
         padding: 8px 4px;
         font-size: 14px;
+
         &>div {
           border-bottom: 2px solid transparent;
 
@@ -323,18 +479,17 @@ input[type="radio"] {
             border-color: vars.$brand-color;
             cursor: pointer;
           }
+
           &:not(:first-of-type) {
             margin-left: 15px;
           }
         }
       }
+
       .response-body-content {
         height: 100%;
         background-color: white;
       }
     }
-
-
   }
-
 }
