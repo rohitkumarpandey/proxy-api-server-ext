@@ -11,6 +11,7 @@ function App() {
   const navigate = useNavigate();
   const [collections, setCollections] = useState<Collection[]>([
     {
+      id: 'collection-1',
       name: 'New Collection',
       description: 'de',
       api: [{
@@ -21,9 +22,10 @@ function App() {
         endpoint: '',
         islive: true
       }
-    ]
+      ]
     },
     {
+      id: 'collection-1',
       name: 'New Collection',
       description: 'Collec',
       api: [{
@@ -36,7 +38,7 @@ function App() {
       },
       {
         id: 'api-3',
-        method: 'GET',
+        method: 'POST',
         name: 'http://localhost:5256/user',
         url: 'http://localhost:5256/user',
         endpoint: '/user',
@@ -45,20 +47,10 @@ function App() {
     }
   ]);
 
-  const addCollectionBtnHandler = () => {
-    setCollections([...collections, {
-      name: 'New Collection',
-      description: 'Collection',
-      api: [{
-        id: 'api-2',
-        method: 'GET',
-        name: 'http://localhost:5256/',
-        url: 'http://localhost:5256/',
-        endpoint: '',
-        islive: false
-      }]
-    }]);
-    navigate('/collection');
+  const addCollectionBtnHandler = (collection: Collection) => {
+    console.log(collection)
+    setCollections([...collections, collection]);
+    navigate('/collection', { state: { collections } });
   }
 
   const serverHandler = (api: Api) => {
