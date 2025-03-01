@@ -1,48 +1,56 @@
 import React from 'react';
+import {Api, Collection} from '../model/collection.model';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  collections: Collection[];
+  addCollectionBtnHandler: () => void;
+  serverHandler:(api: Api) => void;
+}
+
+const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBtnHandler, serverHandler }) => {
   return (
     <div className="sidebar">
+      <div className="collection">
+        <div>Collections</div>
+        <div className='collection-add-btn' onClick={addCollectionBtnHandler}>+</div>
+      </div>
       <div className="accordion" id="accordionPanelsStayOpenExample">
-        <div className="accordion-item">
-          <h2 className="accordion-header">
-            <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-              Accordion Item #1
-            </button>
-          </h2>
-          <div id="panelsStayOpen-collapseOne" className="accordion-collapse collapse show">
-            <div className="accordion-body">
-              <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+        {collections.map((collection, index) => (
+          <div key={index} className="accordion-item">
+            <h2 className="accordion-header" id={`heading${index}`}>
+              <button
+                className="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target={`#collapse${index}`}
+                aria-expanded="false"
+                aria-controls={`collapse${index}`}
+              >
+                {collection.name}
+              </button>
+            </h2>
+            <div
+              id={`collapse${index}`}
+              className="accordion-collapse collapse"
+              aria-labelledby={`heading${index}`}
+            >
+              {collection.api.map((api) => (
+                <div className="accordion-body" onClick={() => serverHandler(api)} key={api.id}>
+                  <div className='api-container'>
+                    <div className={`api-live-container ${api.islive ? 'api-live' : ''}`}>
+                      <div></div>
+                    </div>
+                    <strong className={`api-method api-method-${api.method.toLowerCase()}`}>{api.method}
+                    </strong>&nbsp;<div className='api-url'>{api.name || api.url}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-        <div className="accordion-item">
-          <h2 className="accordion-header">
-            <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
-              Accordion Item #2
-            </button>
-          </h2>
-          <div id="panelsStayOpen-collapseTwo" className="accordion-collapse collapse">
-            <div className="accordion-body">
-              <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-            </div>
-          </div>
-        </div>
-        <div className="accordion-item">
-          <h2 className="accordion-header">
-            <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
-              Accordion Item #3
-            </button>
-          </h2>
-          <div id="panelsStayOpen-collapseThree" className="accordion-collapse collapse">
-            <div className="accordion-body">
-              <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
 };
 
-export default Sidebar;
+export default SidebarComponent;
