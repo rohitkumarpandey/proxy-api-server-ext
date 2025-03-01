@@ -1,18 +1,24 @@
 import React from 'react';
-import {Api, Collection} from '../model/collection.model';
+import { Api, Collection } from '../model/collection.model';
+import AppUtil from '../common/app.util';
 
 interface SidebarProps {
   collections: Collection[];
-  addCollectionBtnHandler: () => void;
-  serverHandler:(api: Api) => void;
+  addCollectionBtnHandler: (collection: Collection) => void;
+  serverHandler: (api: Api) => void;
 }
 
 const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBtnHandler, serverHandler }) => {
+
+  function addNewCollection(handler: (collection: Collection) => void) {
+    handler(AppUtil.getNewCollection());
+  }
+  
   return (
     <div className="sidebar">
       <div className="collection">
         <div>Collections</div>
-        <div className='collection-add-btn' onClick={addCollectionBtnHandler}>+</div>
+        <div className='collection-add-btn' onClick={() => addNewCollection(addCollectionBtnHandler)}>+</div>
       </div>
       <div className="accordion" id="accordionPanelsStayOpenExample">
         {collections.map((collection, index) => (

@@ -8,6 +8,7 @@ export interface Api {
 }
 
 export interface Collection {
+    id: string,
     name: string;
     description:string;
     api: Api[]
