@@ -342,11 +342,18 @@ input[type="radio"] {
         }
 
         .server-request-validator-container {
+          height: 100%;
           max-height: 100%;
           overflow-y: auto;
           background-color: vars.$light-white;
           border-radius: 4px;
           padding: 4px;
+
+          .server-request-validator-auth {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+          }
         }
       }
     }

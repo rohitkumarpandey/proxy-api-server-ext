@@ -48,7 +48,6 @@ function App() {
   ]);
 
   const addCollectionBtnHandler = (collection: Collection) => {
-    console.log(collection)
     setCollections([...collections, collection]);
     navigate('/collection', { state: { collections } });
   }

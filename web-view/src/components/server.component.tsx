@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from './button.component';
 import { useLocation } from 'react-router-dom';
 import { Api } from '../model/collection.model';
+import AppUtil from '../common/app.util';
 const ServerComponent: React.FC = () => {
     const location = useLocation();
     const api = location.state?.api as Api;
-    console.log(api);
+
+    const [validator, setValidator] = useState<string>('auth');
+
+    function renderRequestValidator(validator: string): void {
+        setValidator(validator)
+    }
     return (
         <>
             <div className="server-container">
@@ -34,22 +40,25 @@ const ServerComponent: React.FC = () => {
 
                         <div className='server-request-validator'>
                             <div className='server-request-validator-options'>
-                                <div className='server-request-validator-option'>Authorization</div>
-                                <div className='server-request-validator-option'>Params</div>
-                                <div className='server-request-validator-option' data-bs-toggle="collapse" data-bs-target="#request-headers">Headers</div>
-                                <div className='server-request-validator-option' data-bs-toggle="collapse" data-bs-target="#request-body" >
+                                <div className='server-request-validator-option' data-bs-target="#request-auth" onClick={() => renderRequestValidator('auth')}>Authorization</div>
+                                <div className='server-request-validator-option' data-bs-target="#request-headers" onClick={() => renderRequestValidator('headers')}>Headers</div>
+                                <div className='server-request-validator-option' data-bs-target="#request-body" onClick={() => renderRequestValidator('body')}>
                                     Body
                                 </div>
                             </div>
                             <div className='server-request-validator-container'>
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                               he reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                               
-
+                                <div id="request-auth" className={`show ${validator == 'auth' ? '' : 'd-none'}`}>
+                                    <div>
+                                        Auth Type:
+                                        <select>
+                                            {AppUtil.getAuthTypes().map(auth => (
+                                                <option value={auth.id}>{auth.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="request-headers" className={`${validator == 'headers' ? 'show' : 'd-none'}`}>headers</div>
+                                <div id="request-body" className={`${validator == 'body' ? 'show' : 'd-none'}`}>Body</div>
                             </div>
                         </div>
                     </div>

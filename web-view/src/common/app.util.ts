@@ -38,6 +38,23 @@ class AppUtil {
             ]
         };
     }
+
+    static getAuthTypes(): {id: string, name: string}[] {
+        return [
+            {
+                id: 'no-auth',
+                name: 'No Auth'
+            },
+            {
+                id: 'bearer-token',
+                name: 'Bearer Token'
+            },
+            {
+                id: 'jwt-token',
+                name: 'JWT Token'
+            }
+        ];
+    }
 }
 
 export default AppUtil;
