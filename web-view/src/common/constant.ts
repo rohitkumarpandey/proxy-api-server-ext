@@ -11,7 +11,32 @@ export const CONSTANT = {
             URL: 'http://localhost:5256',
             METHOD: 'GET',
             ENDPOINT: '',
-            IS_LIVE: false
+            IS_LIVE: false,
+            LATENCY: 0,
+            RESPONSE: {
+                code: 200,
+                status: 'SUCCESS'
+            },
+            RESPONSE_TABS: [
+                {
+                    httpStatus: {
+                        code: 200,
+                        status: 'SUCCESS'
+                    },
+                    responseBody: [
+                        {
+                            contentType: 'none',
+                            content: ''
+                        }
+                    ],
+                    headers: [
+                        {
+                            key: '',
+                            value: ''
+                        }
+                    ]
+                }
+            ]
 
         }
     }

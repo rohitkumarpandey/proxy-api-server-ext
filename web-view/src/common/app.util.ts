@@ -1,4 +1,4 @@
-import { Collection } from "../model/collection.model";
+import { ApiResponseTab, Collection, HttpStatusCode, Latency } from "../model/collection.model";
 import { CONSTANT } from "./constant";
 
 class AppUtil {
@@ -33,13 +33,64 @@ class AppUtil {
                     method: 'GET',
                     url: CONSTANT.DEFAULT.API.URL,
                     endpoint: CONSTANT.DEFAULT.API.ENDPOINT,
-                    islive: CONSTANT.DEFAULT.API.IS_LIVE
+                    islive: CONSTANT.DEFAULT.API.IS_LIVE,
+                    response: {
+                        code: 200,
+                        status: 'SUCCESS'
+                    },
+                    latency: 100,
+                    responseTabs: [
+                        {
+                            id: this.generateId(),
+                            name: `200 SUCCESS`,
+                            httpStatus: {
+                                code: 200,
+                                status: 'SUCCESS'
+                            },
+                            responseBody: [
+                                {
+                                    contentType: 'none',
+                                    content: ''
+                                }
+                            ],
+                            headers: [
+                                {
+                                    key: '',
+                                    value: ''
+                                }
+                            ]
+                        }
+                    ]
+
                 }
             ]
         };
     }
 
-    static getAuthTypes(): {id: string, name: string}[] {
+    static getNewResponseTab(): ApiResponseTab {
+        return {
+            id: this.generateId(),
+            name: `200 ` + this.generateId(),
+            httpStatus: {
+                code: 200,
+                status: 'SUCCESS'
+            },
+            responseBody: [
+                {
+                    contentType: 'none',
+                    content: ''
+                }
+            ],
+            headers: [
+                {
+                    key: '',
+                    value: ''
+                }
+            ]
+        };
+    }
+
+    static getAuthTypes(): { id: string, name: string }[] {
         return [
             {
                 id: 'no-auth',
@@ -52,6 +103,51 @@ class AppUtil {
             {
                 id: 'jwt-token',
                 name: 'JWT Token'
+            }
+        ];
+    }
+
+    static getLatency(): Latency[] {
+        return [
+            {
+                value: 0,
+                name: '0 ms'
+            },
+            {
+                value: 100,
+                name: '100 ms'
+            },
+            {
+                value: 1000,
+                name: '1000 ms'
+            },
+            {
+                value: 2000,
+                name: '2000 ms'
+            }, {
+                value: 4000,
+                name: '4000 ms'
+            },
+            {
+                value: 5000,
+                name: '5000 ms'
+            },
+
+        ]
+    }
+    static getHttpRequests(): HttpStatusCode[] {
+        return [
+            {
+                code: 200,
+                status: 'SUCCESS'
+            },
+            {
+                code: 400,
+                status: 'BAD REQUEST'
+            },
+            {
+                code: 500,
+                status: 'INTERNAL SERVER ERROR'
             }
         ];
     }

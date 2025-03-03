@@ -14,6 +14,9 @@ ul {
   padding: 0 !important;
   margin: 0 !important;
   list-style: none;
+  li {
+    display: inline;
+  }
 }
 
 input[type="radio"] {
@@ -93,12 +96,29 @@ input[type="radio"] {
 
   .pas-content {
     display: flex;
-    width: 100%;
+    width: 82%;
     height: 100%;
     border-radius: 2px;
   }
 }
-
+.landing-page {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  h1{
+    color: vars.$brand-color;
+    font-weight: bolder;
+    letter-spacing: 5px;
+    font-size: 40px;
+  }
+  p {
+    font-weight: bold;
+    letter-spacing: 4px;
+  }
+}
 .sidebar {
   display: flex;
   width: 100%;
@@ -171,7 +191,8 @@ input[type="radio"] {
       align-items: center;
       overflow: hidden;
       font-size: 10px;
-      .api-live-container  {
+
+      .api-live-container {
         height: 6px;
         width: 6px;
         border: 1px solid transparent;
@@ -187,8 +208,10 @@ input[type="radio"] {
           border-radius: 50%;
           background-color: transparent;
         }
+
         &.api-live {
           border-color: vars.$brand-color;
+
           >div {
             background-color: vars.$brand-color;
           }
@@ -254,6 +277,15 @@ input[type="radio"] {
   width: 100%;
   height: 100%;
 
+  input,
+  select {
+    padding: 8px;
+    border: 1px solid black;
+    border-radius: 4px;
+    margin: 4px;
+    font-weight: bold;
+  }
+
   .server-breadcrumb {
     font-weight: bold;
   }
@@ -265,28 +297,23 @@ input[type="radio"] {
     flex-direction: column;
 
     .server-request-config-container {
-      height: 40%;
+      display: flex;
+      flex-direction: column;
+      height: 10%;
       border-radius: 4px;
       padding: 0 4px;
       background-color: white;
 
       .server-breadcrumb {
-        height: 8%;
+        height: 30%;
       }
 
       .server-url-container {
-        height: 18%;
+        height: 70%;
         display: flex;
         width: 100%;
         align-items: center;
-
-        input,
-        select {
-          padding: 8px;
-          border: 1px solid black;
-          border-radius: 4px;
-          margin: 4px;
-        }
+        background-color: white;
 
         input[disabled] {
           border: 1px solid vars.$light-gray;
@@ -342,15 +369,17 @@ input[type="radio"] {
         }
 
         .server-request-validator-container {
+          display: flex;
+          align-items: center;
           height: 100%;
           max-height: 100%;
           overflow-y: auto;
           background-color: vars.$light-white;
           border-radius: 4px;
           padding: 4px;
-
           .server-request-validator-auth {
-            margin-top: 10px;
+            font-weight: bold;
+            width: 80%;
             display: flex;
             justify-content: center;
           }
@@ -364,14 +393,29 @@ input[type="radio"] {
       flex-direction: column;
       margin-top: 8px;
       border-radius: 4px;
-      height: 60%;
-
+      height: 85%;
+      select {
+        outline: none;
+        border: none;
+        border-bottom: none;
+        color: green;
+        font-weight: 600;
+        &>option {
+          font-weight: bold;
+        }
+      }
       .server-response-status {
         background-color: white;
         display: flex;
         align-items: center;
-        padding: 8px 4px !important;
+        justify-content: space-between;
+        padding: 4px;
         color: vars.$light-gray;
+        
+
+        >div:last-of-type {
+          margin-right: 20px;
+        }
 
         li {
           font-size: 12px;
@@ -394,20 +438,41 @@ input[type="radio"] {
       }
 
       .response-type-tab-container {
-        margin-top: 2px;
+        margin-top: 8px;
         display: flex;
         align-items: center;
+        width: 98%;
+        >div{
+          display: flex;
+          align-items: center;
+          width: 100%;
+          max-width: 100%;
+          overflow-x: auto;
+        }
 
         .response-type-tab {
           display: flex;
           align-items: center;
-          background-color: vars.$brand-color;
-          color: white;
+          background-color: white;
+          white-space: nowrap;
+          color: vars.$brand-color;
           padding: 2px 8px;
           border-radius: 0 8px 0 0;
+          margin: 0 2px;
+          &:hover{
+            cursor: pointer;
+            background-color: vars.$brand-color;
+            color: white;
+          }
+
+          &.active-tab {
+            background-color: vars.$brand-color;
+            color: white;
+          }
 
           .tab-label {
             margin-right: 10px;
+            padding: 8px 0;
           }
 
           .close-tab {
@@ -432,17 +497,34 @@ input[type="radio"] {
           }
         }
       }
+      .response-tab-container {
+        >div {
+          background-color: white;
+          margin-top: 2px;
+        }
+        .response-tab-name-input-container {
+          >input {
+            width: 30%;
+            border: 0.5px solid vars.$light-gray;
+          }
+        }
+      }
 
       .response-data-type-config {
         display: flex;
         align-items: center;
+        justify-content: space-around;
         background-color: white;
         padding: 8px 4px;
         border-radius: 4px;
+        height: 6%;
+        > div {
+          width: 100%;
+          flex-grow: 1;
+        }
 
         .response-data-type {
           display: flex;
-          flex-grow: 1;
 
           li {
             font-size: 12px;
@@ -463,13 +545,20 @@ input[type="radio"] {
             }
           }
         }
-
+        .response-status-select {
+          select {
+            color: royalblue;
+          }
+        }
         .response-data-type-formatter {
-          flex-grow: 1;
           display: flex;
+          font-weight: bold;
           justify-content: flex-end;
-          margin-right: 20px;
+          padding-right: 20px;
           color: vars.$brand-color;
+          &:hover {
+            cursor: pointer;
+          }
         }
       }
 
@@ -480,11 +569,14 @@ input[type="radio"] {
         font-size: 14px;
 
         &>div {
-          border-bottom: 2px solid transparent;
+          border-bottom: 2.5px solid transparent;
 
           &:hover {
             border-color: vars.$brand-color;
             cursor: pointer;
+          }
+          &.active-content-tab {
+            border-color: vars.$brand-color;
           }
 
           &:not(:first-of-type) {
@@ -493,9 +585,17 @@ input[type="radio"] {
         }
       }
 
-      .response-body-content {
-        height: 100%;
+      .response-body {
+        height: 95%;
         background-color: white;
+        display: flex;
+        flex-direction: column;
+        .response-body-content {
+          padding: 2px;
+          height: 94%;
+          width: 100%;
+          outline: none;
+        }
       }
     }
   }
