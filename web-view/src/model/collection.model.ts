@@ -7,18 +7,22 @@ export interface HttpStatusCode {
     status: 'SUCCESS' | 'BAD REQUEST' | 'INTERNAL SERVER ERROR'
 }
 export interface ResponseBody {
-    contentType: 'none' | 'string' | 'json',
-    content: string | JSON
+    contentType: 'none' | 'string' | 'json';
+    content: string;
 }
 export interface ResponseHeader {
     key: string,
-    value: string
+    value: string,
+    description?: string,
+    keyPlaceholder?: string,
+    valuePlaceholder?: string,
+    descriptionPlaceholder?: string,
 }
 export interface ApiResponseTab {
     id: string;
     name: string,
     httpStatus: HttpStatusCode,
-    responseBody: ResponseBody[],
+    responseBody: ResponseBody,
     headers: ResponseHeader[]
 }
 

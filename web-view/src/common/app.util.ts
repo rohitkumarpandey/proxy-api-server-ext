@@ -1,4 +1,4 @@
-import { ApiResponseTab, Collection, HttpStatusCode, Latency } from "../model/collection.model";
+import { ApiResponseTab, Collection, HttpStatusCode, Latency, ResponseHeader } from "../model/collection.model";
 import { CONSTANT } from "./constant";
 
 class AppUtil {
@@ -39,34 +39,22 @@ class AppUtil {
                         status: 'SUCCESS'
                     },
                     latency: 100,
-                    responseTabs: [
-                        {
-                            id: this.generateId(),
-                            name: `200 SUCCESS`,
-                            httpStatus: {
-                                code: 200,
-                                status: 'SUCCESS'
-                            },
-                            responseBody: [
-                                {
-                                    contentType: 'none',
-                                    content: ''
-                                }
-                            ],
-                            headers: [
-                                {
-                                    key: '',
-                                    value: ''
-                                }
-                            ]
-                        }
-                    ]
+                    responseTabs: [this.getNewResponseTab()]
 
                 }
             ]
         };
     }
-
+    static getNewHeader(): ResponseHeader {
+        return {
+            key: '',
+            value: '',
+            description: '',
+            keyPlaceholder: 'Header Key',
+            valuePlaceholder: 'Header Value',
+            descriptionPlaceholder: 'Description',
+        };
+    }
     static getNewResponseTab(): ApiResponseTab {
         return {
             id: this.generateId(),
@@ -75,17 +63,12 @@ class AppUtil {
                 code: 200,
                 status: 'SUCCESS'
             },
-            responseBody: [
-                {
-                    contentType: 'none',
-                    content: ''
-                }
-            ],
+            responseBody: {
+                contentType: 'string',
+                content: ''
+            },
             headers: [
-                {
-                    key: '',
-                    value: ''
-                }
+                this.getNewHeader()
             ]
         };
     }

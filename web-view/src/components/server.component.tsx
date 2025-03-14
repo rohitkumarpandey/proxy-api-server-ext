@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Button from './button.component';
 import { useLocation } from 'react-router-dom';
-import { Api } from '../model/collection.model';
+import { Api, ApiResponseTab, ResponseHeader } from '../model/collection.model';
 import AppUtil from '../common/app.util';
+import JsonEditor from './json-editor.component';
+
 const ServerComponent: React.FC = () => {
     const location = useLocation();
     const stateApi = location.state?.api as Api;
@@ -12,6 +14,9 @@ const ServerComponent: React.FC = () => {
     const [activeTab, setResponseTab] = useState<string>(defaultActiveTab);
     const defaultActiveResponseContent: string = `response-body-${defaultActiveTab}`;
     const [activeResponseContent, setResponseContent] = useState<string>(defaultActiveResponseContent);
+    const [isInvalidJSON, setInvalidJSON] = useState<boolean>(false);
+
+    const jsonEditorRef = useRef<{ formatJson: () => boolean }>(null);
 
     function renderResponseTab(tabId: string) {
         setResponseTab(tabId);
@@ -24,10 +29,11 @@ const ServerComponent: React.FC = () => {
 
     function addNewResponseTab(): void {
         const newTab = AppUtil.getNewResponseTab();
-        const updatedApi = { ...api, responseTabs: [...api.responseTabs, newTab] };
-        updateApi(updatedApi);
+        api.responseTabs.push(newTab);
+        updateApi(api);
         renderResponseTab(newTab.id);
     }
+
     function removeResponeTab(tabId: string) {
         const filteredApi = api.responseTabs.filter(tab => tab.id != tabId);
         const updatedApi = { ...api, responseTabs: [...filteredApi] };
@@ -37,6 +43,62 @@ const ServerComponent: React.FC = () => {
             renderResponseTab(lastResponseTabId);
         }
     }
+
+    function handleHeaderInput(tabId: string, headerIndex: number, updatedheader: ResponseHeader): void {
+        const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
+            if (tab.id === tabId) {
+                const headersSize: number = tab.headers.length;
+                const updatedHeaders = tab.headers.map((header, index) => {
+                    if (index === headerIndex) {
+                        return { ...header, updatedheader };
+                    }
+                    return header;
+                });
+                if (headersSize === headerIndex + 1) {
+                    updatedHeaders.push(AppUtil.getNewHeader());
+                }
+                return { ...tab, headers: updatedHeaders };
+            }
+            return tab;
+        });
+        updateApi({ ...api, responseTabs: updatedTabs });
+    }
+
+    function handleResponseInput(tabId: string, value: string, contentType: 'string' | 'json' | 'none' = 'json'): void {
+        let formattedValue = value;
+        if (contentType === 'json') {
+            try {
+                const jsonObject = JSON.parse(value);
+                formattedValue = JSON.stringify(jsonObject, null, 2);
+            } catch (error) {
+                formattedValue = value;
+            }
+        }
+
+        const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
+            if (tab.id === tabId) {
+                tab.responseBody = {
+                    contentType: contentType,
+                    content: formattedValue
+                }
+            }
+            return tab;
+        });
+        updateApi({ ...api, responseTabs: updatedTabs });
+    }
+
+    const handleBeautifyClick = () => {
+        if (jsonEditorRef.current) {
+            const isFormatted: boolean = jsonEditorRef.current.formatJson();
+            console.log('is invalid json', isFormatted)
+            if (!isFormatted) {
+                setInvalidJSON(true);
+            } else {
+                setInvalidJSON(false);
+            }
+        }
+    };
+
     return (
         <>
             <div className="server-container">
@@ -62,38 +124,6 @@ const ServerComponent: React.FC = () => {
                                 <Button label='Live' type='secondary' handler={() => { }} />
                             </div>
                         </div>
-
-                        {/* {false && <div className='server-request-validator'>
-                            <div className='server-request-validator-options'>
-                                <div className='server-request-validator-option' data-bs-target="#request-auth" onClick={() => renderRequestValidator('auth')}>Authorization</div>
-                                <div className='server-request-validator-option' data-bs-target="#request-headers" onClick={() => renderRequestValidator('headers')}>Headers</div>
-                                <div className='server-request-validator-option' data-bs-target="#request-body" onClick={() => renderRequestValidator('body')}>
-                                    Body
-                                </div>
-                            </div>
-                            <div className='server-request-validator-container'>
-                                <div id="request-auth" className={`server-request-validator-auth show ${validator == 'auth' ? '' : 'd-none'}`}>
-                                    <div>
-                                        Auth Type: &nbsp;
-                                        <select>
-                                            {AppUtil.getAuthTypes().map(auth => (
-                                                <option value={auth.id}>{auth.name}</option>
-                                            ))}
-                                        </select>
-                                        &nbsp; or else return &nbsp;
-                                        <select>
-                                            {AppUtil.getAuthTypes().map(auth => (
-                                                <option value={auth.id}>{auth.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div id="request-headers" className={`${validator == 'headers' ? 'show' : 'd-none'}`}>headers</div>
-                                <div id="request-body" className={`${validator == 'body' ? 'show' : 'd-none'}`}>Body</div>
-                            </div>
-
-                        </div>
-                        } */}
                     </div>
                     <div className='server-response-container'>
                         <div className='server-response-status'>
@@ -116,16 +146,16 @@ const ServerComponent: React.FC = () => {
                         </div>
                         <div className='response-type-tab-container'>
                             <div className='d-flex'>
-                            {api.responseTabs && api?.responseTabs.map(tab => (
-                                <div className={`response-type-tab ${activeTab === tab.id ? 'active-tab' : ''}`}>
-                                    <div className="tab-label"
-                                        onClick={() => renderResponseTab(tab.id)}
-                                    >{`${tab.httpStatus.code} ${tab.httpStatus.status}`}</div>
-                                    {api.responseTabs.length > 1 && <div className="close-tab" onClick={() => { removeResponeTab(tab.id) }}>+</div>}
-                                </div>
-                            ))
-                            }
-                            <div className="new-response-type-tab-btn" onClick={addNewResponseTab}>+</div>
+                                {api.responseTabs && api?.responseTabs.map(tab => (
+                                    <div className={`response-type-tab ${activeTab === tab.id ? 'active-tab' : ''}`}>
+                                        <div className="tab-label"
+                                            onClick={() => renderResponseTab(tab.id)}
+                                        >{`${tab.httpStatus.code} ${tab.httpStatus.status}`}</div>
+                                        {api.responseTabs.length > 1 && <div className="close-tab" onClick={() => { removeResponeTab(tab.id) }}>+</div>}
+                                    </div>
+                                ))
+                                }
+                                <div className="new-response-type-tab-btn" onClick={addNewResponseTab}>+</div>
                             </div>
                         </div>
                         {api.responseTabs && api.responseTabs.map((tab) => (
@@ -144,19 +174,19 @@ const ServerComponent: React.FC = () => {
                                             <div className='response-data-type-config'>
                                                 <div className='response-data-type'>
                                                     <ul>
-                                                        <li className='radio-ehecked'>
+                                                        <li>
                                                             <input type="radio" name="response-data-type" id="response-data-type-none"
-                                                                value="none" ></input>
+                                                                value="none" checked={tab.responseBody.contentType === 'none'}></input>
                                                             <label htmlFor="response-data-type-none">None</label>
                                                         </li>
                                                         <li>
                                                             <input type="radio" name="response-data-type" id="response-data-type-string"
-                                                                value="string"></input>
+                                                                value="string" checked={tab.responseBody.contentType === 'string'}></input>
                                                             <label htmlFor="response-data-type-string">String</label>
                                                         </li>
                                                         <li>
                                                             <input type="radio" name="response-data-type" id="response-data-type-json"
-                                                                value="json"></input>
+                                                                value="json" checked={tab.responseBody.contentType === 'json'}></input>
                                                             <label htmlFor="response-data-type-json">JSON</label>
                                                         </li>
                                                     </ul>
@@ -170,15 +200,44 @@ const ServerComponent: React.FC = () => {
                                                     </select>
                                                 </div>
                                                 <div className='response-data-type-formatter'>
-                                                    Beautify
+                                                    <div onClick={handleBeautifyClick}>Beautify</div>
                                                 </div>
                                             </div>
-                                            <div className='response-body-content' contentEditable='true'>
-                                                Response
+                                            <div className='response-body-content-container'>
+                                                <JsonEditor
+                                                    ref={jsonEditorRef}
+                                                    initialJson={tab.responseBody.content}
+                                                    onChange={(newJson) => handleResponseInput(tab.id, newJson, tab.responseBody.contentType)}
+                                                />
+                                                <div className={`invalid-json ${isInvalidJSON ? '': 'd-none'}`}>Invalid Json</div>
                                             </div>
                                         </div>
                                         <div id={`headers-${tab.id}`} className={`${activeResponseContent == `response-headers-${tab.id}` ? '' : 'd-none'}`}>
-                                            Headers
+                                            <div className='response-headers-container'>
+                                                <div className='response-headers-content'>
+                                                    <div className='response-headers-table'>
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th></th>
+                                                                    <th>Key</th>
+                                                                    <th>Value</th>
+                                                                    <th>Description</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {tab.headers.map((header, index) => (
+                                                                    <tr key={index}>
+                                                                        <td></td>
+                                                                        <td><input placeholder={header.keyPlaceholder} value={header.key} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, key: e.target.value })}></input></td>
+                                                                        <td><input placeholder={header.valuePlaceholder} value={header.value} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, value: e.target.value })}></input></td>
+                                                                        <td><input placeholder={header.descriptionPlaceholder} value={header.description} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, description: e.target.value })}></input></td>
+                                                                    </tr>))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
