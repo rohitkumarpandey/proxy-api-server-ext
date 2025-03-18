@@ -8,12 +8,14 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import AppUtil from './common/app.util';
 import LandingPageComponent from './components/landing-page.component';
+import { State, StateApi, StateApiDetails, StateApiResponseBodyDetails, StateApiResponseDetails, StateCollection } from './model/api-server.model';
+import { ExtensionService } from './service/extension.service';
 
 function App() {
   const location = useLocation();
   const [displayLandingPage, setLandingPageVisibility] = useState<boolean>(true);
   useEffect(() => {
-    if(location.pathname === '' || location.pathname === '/' || location.pathname === '/index.html') {
+    if (location.pathname === '' || location.pathname === '/' || location.pathname === '/index.html') {
       setLandingPageVisibility(true);
     } else {
       setLandingPageVisibility(false);
@@ -30,9 +32,58 @@ function App() {
     navigate('/collection', { state: { collections } });
   }
 
-  const serverHandler = (api: Api) => {
+  const serverHandler = (collectionId: string, api: Api) => {
     setLandingPageVisibility(false);
-    navigate('/server', { state: { api } });
+    navigate('/server', { state: { collectionId: collectionId, api: api } });
+  }
+
+  const apiServerHandler = (collectionId: string, api: Api): void => {
+    const updatedCollections = collections.map(collection => {
+      if (collection.id === collectionId) {
+        return {
+          ...collection,
+          api: collection.api.map(a => a.id === api.id ? api : a)
+        };
+      }
+      return collection;
+    });
+    startLiveServer(updatedCollections);
+  }
+
+  const startLiveServer = (collections: Collection[]): void => {
+    const appState: State = prepareApiState(collections);
+    //ExtensionService.saveStateAndStartServer(appState);
+  }
+
+  function prepareApiState(collections: Collection[]): State {
+    const appState: State = { collections: [] };
+    collections.forEach(collection => {
+      let stateCollection: StateCollection = { id: collection.id, name: collection.name, apis: [] };
+      collection.api.forEach(api => {
+        if (api.islive) {
+          const stateApiResponseBodyDetails: StateApiResponseBodyDetails = {
+            content: api.response?.responseBody.content,
+            type: api.response?.responseBody.contentType
+          }
+          const headers: Map<string, string> = new Map();
+          api.response?.headers && api.response?.headers.map(header => headers.set(header.key, header.value));
+          const stateApiResponseDetails: StateApiResponseDetails = { body: stateApiResponseBodyDetails, headers: headers };
+          const stateApiDetails: StateApiDetails = {
+            method: api.method,
+            endpoint: api.endpoint,
+            responseCode: api.response?.httpStatus.code,
+            response: stateApiResponseDetails
+          }
+          const stateApi: StateApi = { apiId: api.id, isLive: api.islive, apiName: api.name, apiDetails: stateApiDetails };
+          stateCollection.apis.push(stateApi);
+        }
+      });
+
+      if (stateCollection.apis.length) {
+        appState.collections.push(stateCollection);
+      }
+    });
+    return appState;
   }
 
   return (
@@ -45,11 +96,11 @@ function App() {
             serverHandler={serverHandler} />
         </div>
         <div className='pas-content'>
-          { displayLandingPage &&
-            <LandingPageComponent/>
+          {displayLandingPage &&
+            <LandingPageComponent />
           }
           <Routes>
-            <Route path="/server" element={<ServerComponent />} />
+            <Route path="/server" element={<ServerComponent apiServerHandler={apiServerHandler} />} />
             <Route path="/collection" element={<CollectionComponent />} />
           </Routes>
         </div>

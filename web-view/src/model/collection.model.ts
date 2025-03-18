@@ -28,12 +28,12 @@ export interface ApiResponseTab {
 
 export interface Api {
     id: string,
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: 'get' | 'post' | 'put' | 'delete' | 'patch',
     name: string,
     url: string;
     endpoint: string,
     islive: boolean;
-    response: HttpStatusCode;
+    response: ApiResponseTab;
     latency: number;
     responseTabs: ApiResponseTab[]
 }

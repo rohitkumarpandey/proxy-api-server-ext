@@ -5,7 +5,7 @@ import AppUtil from '../common/app.util';
 interface SidebarProps {
   collections: Collection[];
   addCollectionBtnHandler: (collection: Collection) => void;
-  serverHandler: (api: Api) => void;
+  serverHandler: (collectiondId: string, api: Api) => void;
 }
 
 const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBtnHandler, serverHandler }) => {
@@ -41,7 +41,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBt
               aria-labelledby={`heading${index}`}
             >
               {collection.api.map((api) => (
-                <div className="accordion-body" onClick={() => serverHandler(api)} key={api.id}>
+                <div className="accordion-body" onClick={() => serverHandler(collection.id, api)} key={api.id}>
                   <div className='api-container'>
                     <div className={`api-live-container ${api.islive ? 'api-live' : ''}`}>
                       <div></div>

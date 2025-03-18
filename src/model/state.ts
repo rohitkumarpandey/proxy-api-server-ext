@@ -5,7 +5,7 @@ interface ResponseDetails {
         type: string;
         isMandatory: boolean;
     };
-    headers: Map<string, any>;
+    headers: Map<string, string>;
 }
 export interface ApiDetails {
     method: string;
@@ -16,15 +16,15 @@ export interface ApiDetails {
 }
 export interface Api {
     apiId: string;
-    isLive: boolean;
     apiName: string;
     apiDescription: string;
     apiDetails: ApiDetails;
 }
 
 export interface Collection {
+    id: string;
     name: string;
-    apis: any[];
+    apis: Api[];
 }
 export interface State {
     collections: Collection[];

@@ -1,26 +1,48 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Button from './button.component';
 import { useLocation } from 'react-router-dom';
-import { Api, ApiResponseTab, ResponseHeader } from '../model/collection.model';
+import { Api, ApiResponseTab, HttpStatusCode, ResponseBody, ResponseHeader } from '../model/collection.model';
 import AppUtil from '../common/app.util';
 import JsonEditor from './json-editor.component';
 
-const ServerComponent: React.FC = () => {
-    const location = useLocation();
-    const stateApi = location.state?.api as Api;
+interface ServerComponentProps {
+    apiServerHandler: (collectionId: string, api: Api) => void;
+}
 
-    const [api, updateApi] = useState<Api>(stateApi);
-    const defaultActiveTab: string = api.responseTabs[0].id;
-    const [activeTab, setResponseTab] = useState<string>(defaultActiveTab);
-    const defaultActiveResponseContent: string = `response-body-${defaultActiveTab}`;
-    const [activeResponseContent, setResponseContent] = useState<string>(defaultActiveResponseContent);
+const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler }) => {
+    const location = useLocation();
+    const collectiondId: string = location.state?.collectionId;
+    const [api, updateApi] = useState<Api>(location.state?.api as Api);
+    const [activeTab, setResponseTab] = useState<string>('');
+    const [activeResponseContent, setResponseContent] = useState<string>('');
     const [isInvalidJSON, setInvalidJSON] = useState<boolean>(false);
 
     const jsonEditorRef = useRef<{ formatJson: () => boolean }>(null);
 
+    useEffect(() => {
+        if (location.state?.api) {
+            updateApi(location.state.api);
+            const defaultActiveTab = location.state.api.responseTabs[0].id;
+           // handleApiResponse(defaultActiveTab);
+            setResponseTab(defaultActiveTab);
+            setResponseContent(`response-body-${defaultActiveTab}`);
+        }
+    }, [location.state?.api]);
+
+    const normalizeEndpoint = (endpoint: string): string => {
+        // Remove extra forward slashes and ensure it starts with a single forward slash
+        return '/' + endpoint.replace(/^\/+|\/+$/g, '').replace(/\/+/g, '/');
+    };
+
+    const handleServerEndpointChange = (endpoint: string) => {
+        const normalizedEndpoint = normalizeEndpoint(endpoint);
+        const updatedApi = { ...api, endpoint: normalizedEndpoint };
+        updateApi(updatedApi);
+    };
+
     function renderResponseTab(tabId: string) {
         setResponseTab(tabId);
-        renderResponseContent(`response-body-${tabId}`)
+        renderResponseContent(`response-body-${tabId}`);
     }
 
     function renderResponseContent(contentId: string) {
@@ -47,15 +69,15 @@ const ServerComponent: React.FC = () => {
     function handleHeaderInput(tabId: string, headerIndex: number, updatedheader: ResponseHeader): void {
         const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
             if (tab.id === tabId) {
-                const headersSize: number = tab.headers.length;
-                const updatedHeaders = tab.headers.map((header, index) => {
+                const headersSize: number = tab?.headers?.length || 0;
+                const updatedHeaders = tab?.headers?.map((header, index) => {
                     if (index === headerIndex) {
-                        return { ...header, updatedheader };
+                        return { ...header, ...updatedheader };
                     }
                     return header;
                 });
                 if (headersSize === headerIndex + 1) {
-                    updatedHeaders.push(AppUtil.getNewHeader());
+                    updatedHeaders && updatedHeaders.push(AppUtil.getNewHeader());
                 }
                 return { ...tab, headers: updatedHeaders };
             }
@@ -80,7 +102,28 @@ const ServerComponent: React.FC = () => {
                 tab.responseBody = {
                     contentType: contentType,
                     content: formattedValue
-                }
+                };
+            }
+            return tab;
+        });
+        updateApi({ ...api, responseTabs: updatedTabs });
+
+    }
+
+    function handleResponseStatusCode(tabId: string, statusCode: HttpStatusCode['code']): void {
+        const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
+            if (tab.id === tabId) {
+                tab.httpStatus = AppUtil.getHttpRequest(statusCode);
+            }
+            return tab;
+        });
+        updateApi({ ...api, responseTabs: updatedTabs });
+    }
+
+    function handleResponseContentType(tabId: string, contentType: ResponseBody['contentType']) {
+        const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
+            if (tab.id === tabId) {
+                tab.responseBody.contentType = contentType;
             }
             return tab;
         });
@@ -90,7 +133,6 @@ const ServerComponent: React.FC = () => {
     const handleBeautifyClick = () => {
         if (jsonEditorRef.current) {
             const isFormatted: boolean = jsonEditorRef.current.formatJson();
-            console.log('is invalid json', isFormatted)
             if (!isFormatted) {
                 setInvalidJSON(true);
             } else {
@@ -99,17 +141,54 @@ const ServerComponent: React.FC = () => {
         }
     };
 
+    const addToServer = () => {
+        if (!api.islive) {
+            const updatedApi = { ...api, islive: true };
+            updateApi(updatedApi);
+            apiServerHandler(collectiondId, updatedApi);
+        }
+    }
+
+    const removeFromServer = () => {
+        if (api.islive) {
+            const updatedApi = { ...api, islive: false };
+            updateApi(updatedApi);
+            apiServerHandler(collectiondId, updatedApi);
+        }
+    }
+
+    function handleRequestType(value: Api['method']): void {
+        const updatedApi = { ...api, method: value };
+        updateApi(updatedApi);
+    }
+
+    function handleApiResponse(tabId: string): void {
+        const responseTab: ApiResponseTab | undefined = api.responseTabs.find(tab => tab.id === tabId);
+        if (responseTab) {
+            const updatedApi = { ...api, response: responseTab };
+            console.log(updatedApi)
+            updateApi(updatedApi);
+        }
+    }
+
+    function handleApiLatency(latency: number): void {
+        if (latency) {
+            const updatedApi = { ...api, latency: latency };
+            updateApi(updatedApi);
+        }
+    }
+
     return (
         <>
             <div className="server-container">
                 <div className='server-form-container'>
                     <div className='server-request-config-container'>
                         <div className='server-breadcrumb'>
-                            New Collection / {api.name}
+                            New Collection / {api.name}{api.endpoint}
                         </div>
                         <div className="server-url-container">
                             <select name="server-request-type" id="server-request-type" className="server-request-type-select"
-                                defaultValue="get">
+                                defaultValue={api.method} onChange={(e) => handleRequestType(e.target.value as Api['method'])}>
                                 <option className="request-type-get" value="get">GET</option>
                                 <option className="request-type-post" value="post">POST</option>
                                 <option className="request-type-put" value="put">PUT</option>
@@ -119,27 +198,28 @@ const ServerComponent: React.FC = () => {
                             <input type="text" className="server-url-domain" value="http://localhost" disabled></input>
                             <input type="text" className="server-url-port" value="5256" disabled></input>
                             <input id="pas-url-endpoint" name="server-url-endpoint" type="text" className="server-url-endpoint"
-                                value={api.endpoint} placeholder="Enter the endpoint starting with /"></input>
+                                value={api.endpoint} onChange={(e) => handleServerEndpointChange(e.target.value)} placeholder="Enter the endpoint starting with /"></input>
                             <div className="live-server-button">
-                                <Button label='Live' type='secondary' handler={() => { }} />
+                                {!api.islive && <Button label='Live' type='secondary' size='lg' handler={() => { addToServer() }} />}
+                                {api.islive && <Button label='Stop' type='primary' size='lg' handler={() => { removeFromServer() }} />}
                             </div>
                         </div>
                     </div>
-                    <div className='server-response-container'>
+                    <div key={`${api.id}-response-container`} className='server-response-container'>
                         <div className='server-response-status'>
                             <div className='d-flex align-items-center'>
                                 API Response:
-                                <select>
+                                <select onChange={(e) => handleApiResponse(e.target.value)}>
                                     {api.responseTabs.map(tab => (
-                                        <option value={tab.id}>{tab.name}</option>
+                                        <option key={`${tab.id}-${tab.name}`} value={tab.id}>{tab.name}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className='server-response-latency'>
                                 Latency:
-                                <select>
+                                <select defaultValue={api.latency} onChange={(e) => handleApiLatency(e.target.value as unknown as number)}>
                                     {AppUtil.getLatency().map(latency => (
-                                        <option value={latency.value}>{latency.name}</option>
+                                        <option key={`${api.id}-${latency.value}`} value={latency.value}>{latency.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -147,7 +227,7 @@ const ServerComponent: React.FC = () => {
                         <div className='response-type-tab-container'>
                             <div className='d-flex'>
                                 {api.responseTabs && api?.responseTabs.map(tab => (
-                                    <div className={`response-type-tab ${activeTab === tab.id ? 'active-tab' : ''}`}>
+                                    <div key={`${api.id}-${tab.id}`} className={`response-type-tab ${activeTab === tab.id ? 'active-tab' : ''}`}>
                                         <div className="tab-label"
                                             onClick={() => renderResponseTab(tab.id)}
                                         >{`${tab.httpStatus.code} ${tab.httpStatus.status}`}</div>
@@ -174,28 +254,28 @@ const ServerComponent: React.FC = () => {
                                             <div className='response-data-type-config'>
                                                 <div className='response-data-type'>
                                                     <ul>
-                                                        <li>
-                                                            <input type="radio" name="response-data-type" id="response-data-type-none"
-                                                                value="none" checked={tab.responseBody.contentType === 'none'}></input>
-                                                            <label htmlFor="response-data-type-none">None</label>
+                                                        <li key={`content-type-${tab.id}-1`}>
+                                                            <input type="radio" name={`response-data-type-${tab.id}`} id={`response-data-type-none-${tab.id}`}
+                                                                value="none" checked={tab.responseBody.contentType === 'none'} onChange={(e) => { handleResponseContentType(tab.id, e.target.value as ResponseBody['contentType']) }}></input>
+                                                            <label htmlFor={`response-data-type-none-${tab.id}`}>None</label>
                                                         </li>
-                                                        <li>
-                                                            <input type="radio" name="response-data-type" id="response-data-type-string"
-                                                                value="string" checked={tab.responseBody.contentType === 'string'}></input>
-                                                            <label htmlFor="response-data-type-string">String</label>
+                                                        <li key={`content-type-${tab.id}-2`}>
+                                                            <input type="radio" name={`response-data-type-${tab.id}`} id={`response-data-type-string-${tab.id}`}
+                                                                value="string" checked={tab.responseBody.contentType === 'string'} onChange={(e) => { handleResponseContentType(tab.id, e.target.value as ResponseBody['contentType']) }}></input>
+                                                            <label htmlFor={`response-data-type-string-${tab.id}`}>String</label>
                                                         </li>
-                                                        <li>
-                                                            <input type="radio" name="response-data-type" id="response-data-type-json"
-                                                                value="json" checked={tab.responseBody.contentType === 'json'}></input>
-                                                            <label htmlFor="response-data-type-json">JSON</label>
+                                                        <li key={`content-type-${tab.id}-3`}>
+                                                            <input type="radio" name={`response-data-type-${tab.id}`} id={`response-data-type-json-${tab.id}`}
+                                                                value="json" checked={tab.responseBody.contentType === 'json'} onChange={(e) => { handleResponseContentType(tab.id, e.target.value as ResponseBody['contentType']) }}></input>
+                                                            <label htmlFor={`response-data-type-json-${tab.id}`}>JSON</label>
                                                         </li>
                                                     </ul>
                                                 </div>
                                                 <div className='response-status-select d-flex align-items-center'>
                                                     Response Status:
-                                                    <select>
+                                                    <select onChange={(e) => { handleResponseStatusCode(tab.id, e.target.value as unknown as HttpStatusCode['code']) }}>
                                                         {AppUtil.getHttpRequests().map(req => (
-                                                            <option value={req.code}>{`${req.code} ${req.status}`}</option>
+                                                            <option key={`${tab.id}-${req.code}`} value={req.code}>{`${req.code} ${req.status}`}</option>
                                                         ))}
                                                     </select>
                                                 </div>
@@ -209,7 +289,7 @@ const ServerComponent: React.FC = () => {
                                                     initialJson={tab.responseBody.content}
                                                     onChange={(newJson) => handleResponseInput(tab.id, newJson, tab.responseBody.contentType)}
                                                 />
-                                                <div className={`invalid-json ${isInvalidJSON ? '': 'd-none'}`}>Invalid Json</div>
+                                                <div className={`invalid-json ${isInvalidJSON ? '' : 'd-none'}`}>Invalid Json</div>
                                             </div>
                                         </div>
                                         <div id={`headers-${tab.id}`} className={`${activeResponseContent == `response-headers-${tab.id}` ? '' : 'd-none'}`}>
@@ -226,7 +306,7 @@ const ServerComponent: React.FC = () => {
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                {tab.headers.map((header, index) => (
+                                                                {tab.headers && tab.headers.map((header, index) => (
                                                                     <tr key={index}>
                                                                         <td></td>
                                                                         <td><input placeholder={header.keyPlaceholder} value={header.key} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, key: e.target.value })}></input></td>

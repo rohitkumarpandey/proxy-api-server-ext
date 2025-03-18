@@ -22,6 +22,7 @@ class AppUtil {
         return `${CONSTANT.API_ID_PREFIX}${this.generateId()}`;
     }
     static getNewCollection(): Collection {
+        const defaultResponse = this.getNewResponseTab();
         return {
             id: this.generateCollectionId(),
             name: CONSTANT.DEFAULT.COLLECTION.NAME,
@@ -30,17 +31,13 @@ class AppUtil {
                 {
                     id: this.generateApiId(),
                     name: CONSTANT.DEFAULT.API.NAME,
-                    method: 'GET',
+                    method: 'get',
                     url: CONSTANT.DEFAULT.API.URL,
                     endpoint: CONSTANT.DEFAULT.API.ENDPOINT,
                     islive: CONSTANT.DEFAULT.API.IS_LIVE,
-                    response: {
-                        code: 200,
-                        status: 'SUCCESS'
-                    },
-                    latency: 100,
-                    responseTabs: [this.getNewResponseTab()]
-
+                    latency: 0,
+                    responseTabs: [defaultResponse],
+                    response: defaultResponse
                 }
             ]
         };
@@ -64,7 +61,7 @@ class AppUtil {
                 status: 'SUCCESS'
             },
             responseBody: {
-                contentType: 'string',
+                contentType: 'json',
                 content: ''
             },
             headers: [
@@ -133,6 +130,10 @@ class AppUtil {
                 status: 'INTERNAL SERVER ERROR'
             }
         ];
+    }
+
+    static getHttpRequest(code: number): HttpStatusCode {
+        return this.getHttpRequests().find(req => req.code == code) || { code: 200, status: 'SUCCESS' };
     }
 }
 

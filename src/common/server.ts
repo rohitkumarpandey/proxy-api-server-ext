@@ -12,9 +12,7 @@ app.get('/', (req, res) => {
     const liveApis: string[] = [];
     appState && appState.collections.forEach((collection: Collection) => {
         collection.apis.forEach((api: Api) => {
-            if (api.isLive) {
-                liveApis.push(api.apiDetails.endpoint);
-            }
+            liveApis.push(api.apiDetails.endpoint);
         });
     });
     res.status(200).json({ message: 'Server is running', liveApis });

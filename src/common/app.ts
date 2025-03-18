@@ -8,8 +8,8 @@ import { State } from '../model/state';
 import { startServer } from './server';
 
 const saveStateAndStartServer = (state: State, context: ExtensionContext) => {
-    saveState(context, state);
-    startServer(context);
+     saveState(context, state);
+     startServer(context);
 }
 
 const loadLandingTab = (context: ExtensionContext) => {
