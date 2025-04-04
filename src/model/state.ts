@@ -12,6 +12,7 @@ export interface ApiDetails {
     endpoint: string;
     responseCode: string;
     response: ResponseDetails;
+    latency: number;
     handler: (req: any, res: any) => void;
 }
 export interface Api {

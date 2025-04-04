@@ -6,33 +6,30 @@ import { Api, Collection, State } from '../model/state';
 const PORT = 5256;
 
 let server: http.Server;
-const app = express();
-let appState: State | undefined;
-app.get('/', (req, res) => {
-    const liveApis: string[] = [];
-    appState && appState.collections.forEach((collection: Collection) => {
-        collection.apis.forEach((api: Api) => {
-            liveApis.push(api.apiDetails.endpoint);
-        });
-    });
-    res.status(200).json({ message: 'Server is running', liveApis });
-});
-
+let app = express();
 function loadState(context: vscode.ExtensionContext): State | undefined {
-    appState = vscodeApi.loadState(context);
-    return appState;
+    return vscodeApi.loadState(context);
 }
 
 function loadApis(context: vscode.ExtensionContext) {
-    const state: State | undefined = appState || loadState(context);
+    app = express();
+    const state: State | undefined = loadState(context);
     if (state && state.collections) {
         state.collections.forEach((collection: Collection) => {
             collection.apis.forEach((api: Api) => {
-                console.log(api.apiDetails.handler);
                 (app as any)[api.apiDetails.method](api.apiDetails.endpoint, api.apiDetails.handler);
             });
         });
     }
+    app.get('/', (req, res) => {
+        const liveApis: string[] = [];
+        state && state.collections.forEach((collection: Collection) => {
+            collection.apis.forEach((api: Api) => {
+                liveApis.push(api.apiDetails.endpoint);
+            });
+        });
+        res.status(200).json({ message: 'Server is running', liveApis });
+    });
 }
 
 const startServer = (context: vscode.ExtensionContext) => {

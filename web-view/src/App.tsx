@@ -26,10 +26,42 @@ function App() {
     AppUtil.getNewCollection()
   ]);
 
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const { command, data } = event.data;
+
+      if (command === 'loadWebViewState') {
+        if (data && data.collections) {
+          setCollections(data.collections);
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+  const updateCollections = (collections: Collection[]) => {
+    setCollections(collections);
+    ExtensionService.saveWebViewState({ collections: collections });
+  }
   const addCollectionBtnHandler = (collection: Collection) => {
-    setCollections([...collections, collection]);
+    updateCollections([...collections, collection]);
     setLandingPageVisibility(false);
     navigate('/collection', { state: { collections } });
+  }
+  const addNewApiBtnHandler = (collectionId: string) => {
+    const updatedCollections = collections.map(collection => {
+      if (collection.id === collectionId) {
+        collection.api.push(AppUtil.getNewApi());
+      }
+      return collection;
+    });
+    updateCollections(updatedCollections);
   }
 
   const serverHandler = (collectionId: string, api: Api) => {
@@ -38,6 +70,12 @@ function App() {
   }
 
   const apiServerHandler = (collectionId: string, api: Api): void => {
+    const updatedCollections = apiChangeHandler(collectionId, api);
+    startLiveServer(updatedCollections);
+  }
+  
+  const apiChangeHandler = (collectionId: string, api: Api): Collection[] => {
+
     const updatedCollections = collections.map(collection => {
       if (collection.id === collectionId) {
         return {
@@ -47,12 +85,13 @@ function App() {
       }
       return collection;
     });
-    startLiveServer(updatedCollections);
+    updateCollections(updatedCollections);
+    return updatedCollections;
   }
 
   const startLiveServer = (collections: Collection[]): void => {
     const appState: State = prepareApiState(collections);
-    //ExtensionService.saveStateAndStartServer(appState);
+    ExtensionService.saveStateAndStartServer(appState);
   }
 
   function prepareApiState(collections: Collection[]): State {
@@ -72,7 +111,8 @@ function App() {
             method: api.method,
             endpoint: api.endpoint,
             responseCode: api.response?.httpStatus.code,
-            response: stateApiResponseDetails
+            response: stateApiResponseDetails,
+            latency: api.latency
           }
           const stateApi: StateApi = { apiId: api.id, isLive: api.islive, apiName: api.name, apiDetails: stateApiDetails };
           stateCollection.apis.push(stateApi);
@@ -93,14 +133,15 @@ function App() {
           <SidebarComponent
             collections={collections}
             addCollectionBtnHandler={addCollectionBtnHandler}
-            serverHandler={serverHandler} />
+            serverHandler={serverHandler}
+            addNewApiBtnHandler={addNewApiBtnHandler} />
         </div>
         <div className='pas-content'>
           {displayLandingPage &&
             <LandingPageComponent />
           }
           <Routes>
-            <Route path="/server" element={<ServerComponent apiServerHandler={apiServerHandler} />} />
+            <Route path="/server" element={<ServerComponent apiServerHandler={apiServerHandler} apiChangeHandler={apiChangeHandler} />} />
             <Route path="/collection" element={<CollectionComponent />} />
           </Routes>
         </div>

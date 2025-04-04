@@ -13,6 +13,7 @@ export interface StateApiDetails {
     method: string;
     endpoint: string;
     responseCode: number;
+    latency: number;
     response: StateApiResponseDetails;
     handler?: (req: any, res: any) => void;
 }

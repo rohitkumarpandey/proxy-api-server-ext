@@ -1,16 +1,16 @@
-export interface Latency {
+interface Latency {
     name: string,
     value: number
 }
-export interface HttpStatusCode {
+interface HttpStatusCode {
     code: 200 | 201 | 204 | 400 | 401 | 403 | 404 | 500 | 502 | 503;
     status: 'OK' | 'CREATED' | 'NO CONTENT' | 'BAD REQUEST' |  'UNAUTHORIZED' | 'FORBIDDEN' | 'NOT FOUND' | 'INTERNAL SERVER ERROR' | 'BAD GATEWAY' | 'SERVICE UNAVAILABLE';
 }
-export interface ResponseBody {
+interface ResponseBody {
     contentType: 'none' | 'string' | 'json';
     content: string;
 }
-export interface ResponseHeader {
+interface ResponseHeader {
     key: string,
     value: string,
     description?: string,
@@ -18,7 +18,7 @@ export interface ResponseHeader {
     valuePlaceholder?: string,
     descriptionPlaceholder?: string,
 }
-export interface ApiResponseTab {
+interface ApiResponseTab {
     id: string;
     name: string,
     httpStatus: HttpStatusCode,
@@ -26,7 +26,7 @@ export interface ApiResponseTab {
     headers: ResponseHeader[]
 }
 
-export interface Api {
+interface Api {
     id: string,
     method: 'get' | 'post' | 'put' | 'delete' | 'patch',
     name: string,
@@ -38,9 +38,13 @@ export interface Api {
     responseTabs: ApiResponseTab[]
 }
 
-export interface Collection {
+interface Collection {
     id: string,
     name: string;
     description: string;
     api: Api[]
+}
+
+export interface WebViewState {
+    collections: Collection[];
 }

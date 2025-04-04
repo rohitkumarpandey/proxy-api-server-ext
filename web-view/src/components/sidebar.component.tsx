@@ -5,15 +5,24 @@ import AppUtil from '../common/app.util';
 interface SidebarProps {
   collections: Collection[];
   addCollectionBtnHandler: (collection: Collection) => void;
+  addNewApiBtnHandler: (collectionId: string) => void;
   serverHandler: (collectiondId: string, api: Api) => void;
 }
 
-const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBtnHandler, serverHandler }) => {
+const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBtnHandler, serverHandler, addNewApiBtnHandler }) => {
+
 
   function addNewCollection(handler: (collection: Collection) => void) {
     handler(AppUtil.getNewCollection());
   }
-  
+  function collapseCollections(collectionContainerId: string) {
+    const collectionContainer = document.getElementById(collectionContainerId);
+    if (collectionContainer) {
+      const isCollapsed = collectionContainer.classList.contains('collapsed');
+        collectionContainer.classList[isCollapsed ? 'remove' : 'add']('collapsed');
+        collectionContainer.classList[isCollapsed ? 'add' : 'remove']('expanded');
+    }
+  }
   return (
     <div className="sidebar">
       <div className="collection">
@@ -24,16 +33,20 @@ const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBt
         {collections.map((collection, index) => (
           <div key={index} className="accordion-item">
             <h2 className="accordion-header" id={`heading${index}`}>
-              <button
+              <div
+                id={`accordion-btn-${index}`}
                 className="accordion-button collapsed"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target={`#collapse${index}`}
-                aria-expanded="false"
-                aria-controls={`collapse${index}`}
               >
+                <span className="accordion-icon accordion-expand-btn" data-bs-toggle="collapse"
+                  data-bs-target={`#collapse${index}`}
+                  aria-expanded="false"
+                  aria-controls={`collapse${index}`}
+                  onClick={() => collapseCollections(`accordion-btn-${index}`)}></span>
                 {collection.name}
-              </button>
+                <div className='collection-api-options'>
+                  <div className='accordion-icon' onClick={() => addNewApiBtnHandler(collection.id)}>+</div>
+                </div>
+              </div>
             </h2>
             <div
               id={`collapse${index}`}
