@@ -26,7 +26,7 @@ interface ApiResponseTab {
     headers: ResponseHeader[]
 }
 
-interface Api {
+export interface WebViewApi {
     id: string,
     method: 'get' | 'post' | 'put' | 'delete' | 'patch',
     name: string,
@@ -38,13 +38,13 @@ interface Api {
     responseTabs: ApiResponseTab[]
 }
 
-interface Collection {
+export interface WebViewCollection {
     id: string,
     name: string;
     description: string;
-    api: Api[]
+    api: WebViewApi[]
 }
 
 export interface WebViewState {
-    collections: Collection[];
+    collections: WebViewCollection[];
 }

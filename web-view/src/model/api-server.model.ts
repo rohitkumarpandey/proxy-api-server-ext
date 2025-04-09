@@ -4,10 +4,13 @@ export interface StateApiResponseBodyDetails {
     type: string | undefined;
     isMandatory?: boolean;
 }
-
+export interface StateApiHeaderDetails {
+    name: string;
+    value: string;
+}
 export interface StateApiResponseDetails {
     body: StateApiResponseBodyDetails;
-    headers: Map<string, string>;
+    headers: StateApiHeaderDetails[];
 }
 export interface StateApiDetails {
     method: string;

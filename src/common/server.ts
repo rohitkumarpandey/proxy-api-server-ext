@@ -43,8 +43,8 @@ const startServer = (context: vscode.ExtensionContext) => {
 }
 
 const stopServer = (context: vscode.ExtensionContext) => {
-    if (server) {
-        server.close(() => {
+    if (isServerRunning()) {
+        server && server.close(() => {
             vscodeApi.toastMessage('Server stopped');
         });
     }

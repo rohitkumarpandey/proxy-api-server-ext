@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import AppUtil from './common/app.util';
 import LandingPageComponent from './components/landing-page.component';
-import { State, StateApi, StateApiDetails, StateApiResponseBodyDetails, StateApiResponseDetails, StateCollection } from './model/api-server.model';
+import { State, StateApi, StateApiDetails, StateApiHeaderDetails, StateApiResponseBodyDetails, StateApiResponseDetails, StateCollection } from './model/api-server.model';
 import { ExtensionService } from './service/extension.service';
 
 function App() {
@@ -74,13 +74,12 @@ function App() {
     startLiveServer(updatedCollections);
   }
   
-  const apiChangeHandler = (collectionId: string, api: Api): Collection[] => {
-
+  const apiChangeHandler = (collectionId: string, updatedApi: Api): Collection[] => {
     const updatedCollections = collections.map(collection => {
       if (collection.id === collectionId) {
         return {
           ...collection,
-          api: collection.api.map(a => a.id === api.id ? api : a)
+          api: collection.api.map(a => a.id === updatedApi.id ? updatedApi : a)
         };
       }
       return collection;
@@ -91,6 +90,7 @@ function App() {
 
   const startLiveServer = (collections: Collection[]): void => {
     const appState: State = prepareApiState(collections);
+    console.log('App state:', appState);
     ExtensionService.saveStateAndStartServer(appState);
   }
 
@@ -104,8 +104,8 @@ function App() {
             content: api.response?.responseBody.content,
             type: api.response?.responseBody.contentType
           }
-          const headers: Map<string, string> = new Map();
-          api.response?.headers && api.response?.headers.map(header => headers.set(header.key, header.value));
+          const headers: StateApiHeaderDetails[] = [];
+          api.response?.headers && api.response?.headers.forEach(header => headers.push({ name: header.key, value: header.value }));
           const stateApiResponseDetails: StateApiResponseDetails = { body: stateApiResponseBodyDetails, headers: headers };
           const stateApiDetails: StateApiDetails = {
             method: api.method,

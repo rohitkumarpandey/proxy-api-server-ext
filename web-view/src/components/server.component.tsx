@@ -17,14 +17,16 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
     const [activeTab, setResponseTab] = useState<string>('');
     const [activeResponseContent, setResponseContent] = useState<string>('');
     const [isInvalidJSON, setInvalidJSON] = useState<boolean>(false);
+    const [apiResponseTabId, setApiResponseTabId] = useState<string>('');
 
     const jsonEditorRef = useRef<{ formatJson: () => boolean }>(null);
-
     useEffect(() => {
         if (location.state?.api) {
             updateApi(location.state.api);
             const defaultActiveTab = location.state.api.response.id || location.state.api.responseTabs[0].id;
+            handleApiResponse(defaultActiveTab);
             setResponseTab(defaultActiveTab);
+            setApiResponseTabId(defaultActiveTab);
             setResponseContent(`response-body-${defaultActiveTab}`);
         }
     }, [location.state?.api]);
@@ -141,18 +143,6 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
         apiChangeHandler(collectiondId, updatedApi);
     }
 
-    // function handleResponseContentType(tabId: string, contentType: ResponseBody['contentType']) {
-    //     const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
-    //         if (tab.id === tabId) {
-    //             tab.responseBody.contentType = contentType;
-    //         }
-    //         return tab;
-    //     });
-    //     const updatedApi = { ...api, responseTabs: updatedTabs };
-    //     updateApi(updatedApi);
-    //     apiChangeHandler(collectiondId, updatedApi);
-    // }
-
     const handleBeautifyClick = () => {
         if (jsonEditorRef.current) {
             const isFormatted: boolean = jsonEditorRef.current.formatJson();
@@ -166,9 +156,12 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
 
     const addToServer = () => {
         if (!api.islive) {
-            const updatedApi = { ...api, islive: true };
-            updateApi(updatedApi);
-            apiServerHandler(collectiondId, updatedApi);
+            const responseTab: ApiResponseTab | undefined = api.responseTabs.find(tab => tab.id === apiResponseTabId);
+            if (responseTab) {
+                const updatedApi = { ...api, response: responseTab, islive: true };
+                updateApi(updatedApi);
+                apiServerHandler(collectiondId, updatedApi);
+            }
         }
     }
 
@@ -192,6 +185,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
             const updatedApi = { ...api, response: responseTab };
             updateApi(updatedApi);
             apiChangeHandler(collectiondId, updatedApi);
+            setApiResponseTabId(tabId);
         }
     }
 
@@ -289,25 +283,6 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                                     <div className='response-body'>
                                         <div id={`body-${tab.id}`} className={`${activeResponseContent == `response-body-${tab.id}` ? 'h-100' : 'd-none'}`}>
                                             <div className='response-data-type-config'>
-                                                <div className='response-data-type'>
-                                                    {/* <ul>
-                                                        <li key={`content-type-${tab.id}-1`}>
-                                                            <input type="radio" name={`response-data-type-${tab.id}`} id={`response-data-type-none-${tab.id}`}
-                                                                value="none" checked={tab.responseBody.contentType === 'none'} onChange={(e) => { handleResponseContentType(tab.id, e.target.value as ResponseBody['contentType']) }}></input>
-                                                            <label htmlFor={`response-data-type-none-${tab.id}`}>None</label>
-                                                        </li>
-                                                        <li key={`content-type-${tab.id}-2`}>
-                                                            <input type="radio" name={`response-data-type-${tab.id}`} id={`response-data-type-string-${tab.id}`}
-                                                                value="string" checked={tab.responseBody.contentType === 'string'} onChange={(e) => { handleResponseContentType(tab.id, e.target.value as ResponseBody['contentType']) }}></input>
-                                                            <label htmlFor={`response-data-type-string-${tab.id}`}>String</label>
-                                                        </li>
-                                                        <li key={`content-type-${tab.id}-3`}>
-                                                            <input type="radio" name={`response-data-type-${tab.id}`} id={`response-data-type-json-${tab.id}`}
-                                                                value="json" checked={tab.responseBody.contentType === 'json'} onChange={(e) => { handleResponseContentType(tab.id, e.target.value as ResponseBody['contentType']) }}></input>
-                                                            <label htmlFor={`response-data-type-json-${tab.id}`}>JSON</label>
-                                                        </li>
-                                                    </ul> */}
-                                                </div>
                                                 <div className='response-status-select d-flex align-items-center'>
                                                     Response Status:
                                                     <select defaultValue={tab.httpStatus.code} onChange={(e) => { handleResponseStatusCode(tab.id, e.target.value as unknown as HttpStatusCode['code']) }}>

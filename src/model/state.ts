@@ -1,11 +1,14 @@
-
+interface StateApiHeaderDetails {
+    name: string;
+    value: string;
+}
 interface ResponseDetails {
     body: {
         content: any;
         type: string;
         isMandatory: boolean;
     };
-    headers: Map<string, string>;
+    headers: StateApiHeaderDetails[];
 }
 export interface ApiDetails {
     method: string;

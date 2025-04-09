@@ -4,7 +4,7 @@ import { Command, CommandDetails } from '../model/command';
 import { CONSTANT } from './constant';
 import { State, Collection, Api } from '../model/state';
 import { MessageReceiver } from '../model/message';
-import { WebViewState } from '../model/web-state.model';
+import { WebViewApi, WebViewCollection, WebViewState } from '../model/web-state.model';
 const toastMessage = (message: string): void => {
     vscode.window.showInformationMessage(`Proxy API Server: ${message}`);
 }
@@ -76,6 +76,13 @@ const saveWebViewState = (context: vscode.ExtensionContext, value: WebViewState 
 }
 const loadWebViewState = (context: vscode.ExtensionContext): WebViewState | undefined => {
     const state: WebViewState | undefined = context.globalState.get(CONSTANT.IDENTIFIER.WEB_STATE);
+    if (state) {
+        state.collections.forEach((collection: WebViewCollection) => {
+            collection.api.forEach((api: WebViewApi) => {
+                api.islive = false;
+            })
+        })
+    }
     return state;
 }
 const loadState = (context: vscode.ExtensionContext): State | undefined => {
@@ -89,6 +96,12 @@ const loadState = (context: vscode.ExtensionContext): State | undefined => {
                     } catch (error) {
 
                     }
+                    api.apiDetails.response.headers.forEach((header) => {
+                        if (header.name.trim() && header.value.trim()) {
+                            res.setHeader(header.name, header.value);
+                        }
+                    });
+
                     res.status(api.apiDetails.responseCode)['json'](api.apiDetails.response.body.content);
                 }, api.apiDetails.latency || 0);
             }
