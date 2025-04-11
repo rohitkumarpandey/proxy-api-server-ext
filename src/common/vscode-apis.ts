@@ -4,8 +4,9 @@ import { Command, CommandDetails } from '../model/command';
 import { CONSTANT } from './constant';
 import { State, Collection, Api } from '../model/state';
 import { MessageReceiver } from '../model/message';
+import { WebViewApi, WebViewCollection, WebViewState } from '../model/web-state.model';
 const toastMessage = (message: string): void => {
-    vscode.window.showInformationMessage(message);
+    vscode.window.showInformationMessage(`Proxy API Server: ${message}`);
 }
 
 const registerCommands = (command: Command, context: vscode.ExtensionContext): vscode.Disposable[] => {
@@ -17,8 +18,8 @@ const registerCommands = (command: Command, context: vscode.ExtensionContext): v
     return disposables;
 }
 
-const addNewWebViewTab = <T>(id: string, title: string, content: string, context: vscode.ExtensionContext, uris: { [identifier: string]: vscode.Uri },
-    messageReceiver: (message: MessageReceiver<T>) => void
+const addNewWebViewTab = <T, R>(id: string, title: string, content: string, context: vscode.ExtensionContext, uris: { [identifier: string]: vscode.Uri },
+    messageReceiver: (message: MessageReceiver<T, R>) => void, onDidDispose: (context: vscode.ExtensionContext) => void
 ): void => {
     const panel = vscode.window.createWebviewPanel(
         id,
@@ -29,8 +30,6 @@ const addNewWebViewTab = <T>(id: string, title: string, content: string, context
             localResourceRoots: [vscode.Uri.file(context.extensionPath)]
         }
     );
-    //TODO: Add icon to the webview
-    //panel.iconPath = vscode.Uri.file(context.asAbsolutePath('src/assets/logo.png'));
 
     if (uris && Object.keys(uris).length > 0) {
         Object.keys(uris).forEach(key => {
@@ -41,14 +40,19 @@ const addNewWebViewTab = <T>(id: string, title: string, content: string, context
     }
     panel.webview.html = content;
     panel.webview.onDidReceiveMessage(
-        (message: MessageReceiver<T>) => {
+        (message: MessageReceiver<T, R>) => {
             messageReceiver(message);
         },
         undefined,
         context.subscriptions
     );
+    panel.webview.postMessage({
+        command: 'loadWebViewState',
+        data: loadWebViewState(context) // Replace with your actual collections data
+    });
     panel.onDidDispose(() => {
         // When the panel is closed, cancel any future updates to the webview content
+        onDidDispose(context);
     }
     );
 }
@@ -65,19 +69,48 @@ const addStatusBarItem = (alignment: vscode.StatusBarAlignment, priority: number
 const saveState = (context: vscode.ExtensionContext, value: State): void => {
     context.globalState.update(CONSTANT.IDENTIFIER.GLOBAL_STATE, value);
 }
+const saveWebViewState = (context: vscode.ExtensionContext, value: WebViewState | undefined): void => {
+    if (value) {
+        context.globalState.update(CONSTANT.IDENTIFIER.WEB_STATE, value);
+    }
+}
+const loadWebViewState = (context: vscode.ExtensionContext): WebViewState | undefined => {
+    const state: WebViewState | undefined = context.globalState.get(CONSTANT.IDENTIFIER.WEB_STATE);
+    if (state) {
+        state.collections.forEach((collection: WebViewCollection) => {
+            collection.api.forEach((api: WebViewApi) => {
+                api.islive = false;
+            })
+        })
+    }
+    return state;
+}
 const loadState = (context: vscode.ExtensionContext): State | undefined => {
     const state: State | undefined = context.globalState.get(CONSTANT.IDENTIFIER.GLOBAL_STATE);
     state && state.collections.forEach((collection: Collection) => {
         collection.apis.forEach((api: Api) => {
             api.apiDetails.handler = (req: any, res: any) => {
-                res.status(api.apiDetails.responseCode)['json'](api.apiDetails.response.body.content);
+                setTimeout(() => {
+                    try {
+                        api.apiDetails.response.body.content = JSON.parse(api.apiDetails.response.body.content);
+                    } catch (error) {
+
+                    }
+                    api.apiDetails.response.headers.forEach((header) => {
+                        if (header.name.trim() && header.value.trim()) {
+                            res.setHeader(header.name, header.value);
+                        }
+                    });
+
+                    res.status(api.apiDetails.responseCode)['json'](api.apiDetails.response.body.content);
+                }, api.apiDetails.latency || 0);
             }
         });
     });
     return state;
 }
 const deleteState = (context: vscode.ExtensionContext): Thenable<void> => {
-    return context.globalState.update('pas-state', undefined);
+    return context.globalState.update(CONSTANT.IDENTIFIER.GLOBAL_STATE, undefined);
 }
 
 export {
@@ -86,5 +119,7 @@ export {
     addNewWebViewTab,
     addStatusBarItem,
     loadState,
-    saveState
+    saveState,
+    deleteState,
+    saveWebViewState
 }

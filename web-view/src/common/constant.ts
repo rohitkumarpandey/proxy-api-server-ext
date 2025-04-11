@@ -7,11 +7,36 @@ export const CONSTANT = {
             DESCRIPTION: 'New Collection'
         },
         API: {
-            NAME: 'http://localhost:5256',
+            NAME: 'New Request',
             URL: 'http://localhost:5256',
-            METHOD: 'GET',
+            METHOD: 'get',
             ENDPOINT: '',
-            IS_LIVE: false
+            IS_LIVE: false,
+            LATENCY: 0,
+            RESPONSE: {
+                code: 200,
+                status: 'SUCCESS'
+            },
+            RESPONSE_TABS: [
+                {
+                    httpStatus: {
+                        code: 200,
+                        status: 'SUCCESS'
+                    },
+                    responseBody: [
+                        {
+                            contentType: 'none',
+                            content: ''
+                        }
+                    ],
+                    headers: [
+                        {
+                            key: '',
+                            value: ''
+                        }
+                    ]
+                }
+            ]
 
         }
     }

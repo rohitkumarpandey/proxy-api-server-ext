@@ -1,22 +1,233 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Button from './button.component';
 import { useLocation } from 'react-router-dom';
-import { Api } from '../model/collection.model';
-const ServerComponent: React.FC = () => {
+import { Api, ApiResponseTab, HttpStatusCode, ResponseHeader } from '../model/collection.model';
+import AppUtil from '../common/app.util';
+import JsonEditor from './json-editor.component';
+
+interface ServerComponentProps {
+    apiServerHandler: (collectionId: string, api: Api) => void;
+    apiChangeHandler: (collectionId: string, api: Api) => void;
+}
+
+const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, apiChangeHandler }) => {
     const location = useLocation();
-    const api = location.state?.api as Api;
-    console.log(api);
+    const collectiondId: string = location.state?.collectionId;
+    const [api, updateApi] = useState<Api>(location.state?.api as Api);
+    const [activeTab, setResponseTab] = useState<string>('');
+    const [activeResponseContent, setResponseContent] = useState<string>('');
+    const [isInvalidJSON, setInvalidJSON] = useState<boolean>(false);
+    const [apiResponseTabId, setApiResponseTabId] = useState<string>('');
+
+    const jsonEditorRef = useRef<{ formatJson: () => boolean }>(null);
+    useEffect(() => {
+        if (location.state?.api) {
+            updateApi(location.state.api);
+            const defaultActiveTab = location.state.api.response.id || location.state.api.responseTabs[0].id;
+            handleApiResponse(defaultActiveTab);
+            setResponseTab(defaultActiveTab);
+            setApiResponseTabId(defaultActiveTab);
+            setResponseContent(`response-body-${defaultActiveTab}`);
+        }
+    }, [location.state?.api]);
+
+    const normalizeEndpoint = (endpoint: string): string => {
+        // Remove extra forward slashes and ensure it starts with a single forward slash
+        return '/' + endpoint.replace(/^\/+|\/+$/g, '').replace(/\/+/g, '/');
+    };
+
+    const handleServerEndpointChange = (endpoint: string) => {
+        const normalizedEndpoint = normalizeEndpoint(endpoint);
+        const updatedApi = { ...api, endpoint: normalizedEndpoint };
+        updateApi(updatedApi);
+        apiChangeHandler(collectiondId, updatedApi);
+    };
+
+    function renderResponseTab(tabId: string) {
+        setResponseTab(tabId);
+        renderResponseContent(`response-body-${tabId}`);
+    }
+
+    function renderResponseContent(contentId: string) {
+        setResponseContent(contentId);
+    }
+
+    function addNewResponseTab(): void {
+        const newTab = AppUtil.getNewResponseTab();
+        // update tab name
+        let count = 1;
+        const tabNameRegex: RegExp = new RegExp(`^${newTab.name} \\(\\d+\\)$`);
+        const regex = /\((\d+)\)/;
+        api.responseTabs.forEach(tab => {
+            if (tabNameRegex.test(tab.name)) {
+                if (tab.name.match(regex)) {
+                    count = Math.max(count, parseInt(tab.name.match(regex)![1]));
+                }
+            }
+        });
+        newTab.name = `${newTab.name}${count > 0 ? ` (${count + 1})` : ''}`;
+        api.responseTabs.push(newTab);
+        updateApi(api);
+        renderResponseTab(newTab.id);
+        apiChangeHandler(collectiondId, api);
+    }
+
+    function removeResponeTab(tabId: string) {
+        const filteredApi = api.responseTabs.filter(tab => tab.id != tabId);
+        const updatedApi = { ...api, responseTabs: [...filteredApi] };
+        updateApi(updatedApi);
+        const lastResponseTabId = updatedApi.responseTabs.slice(-1).at(0)?.id;
+        if (lastResponseTabId) {
+            renderResponseTab(lastResponseTabId);
+        }
+        apiChangeHandler(collectiondId, updatedApi);
+    }
+
+    function handleHeaderInput(tabId: string, headerIndex: number, updatedheader: ResponseHeader): void {
+        const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
+            if (tab.id === tabId) {
+                const headersSize: number = tab?.headers?.length || 0;
+                const updatedHeaders = tab?.headers?.map((header, index) => {
+                    if (index === headerIndex) {
+                        return { ...header, ...updatedheader };
+                    }
+                    return header;
+                });
+                if (headersSize === headerIndex + 1) {
+                    updatedHeaders && updatedHeaders.push(AppUtil.getNewHeader());
+                }
+                return { ...tab, headers: updatedHeaders };
+            }
+            return tab;
+        });
+        const updatedApi = { ...api, responseTabs: updatedTabs };
+        updateApi(updatedApi);
+        apiChangeHandler(collectiondId, updatedApi);
+    }
+
+    function handleResponseInput(tabId: string, value: string, contentType: 'string' | 'json' | 'none' = 'json'): void {
+        let formattedValue = value;
+        try {
+            const jsonObject = JSON.parse(value);
+            formattedValue = JSON.stringify(jsonObject, null, 2);
+        } catch (error) {
+            formattedValue = value;
+        }
+
+        const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
+            if (tab.id === tabId) {
+                tab.responseBody = {
+                    contentType: contentType,
+                    content: formattedValue
+                };
+            }
+            return tab;
+        });
+        const updatedApi = { ...api, responseTabs: updatedTabs };
+        updateApi(updatedApi);
+        apiChangeHandler(collectiondId, updatedApi);
+    }
+
+    function handleResponseStatusCode(tabId: string, statusCode: HttpStatusCode['code']): void {
+        const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
+            if (tab.id === tabId) {
+                tab.httpStatus = AppUtil.getHttpRequest(statusCode);
+                if (tab.name == `${tab.httpStatus.status}`) {
+                    tab.name = `${tab.httpStatus.status}`;
+                }
+            }
+            return tab;
+        });
+        const updatedApi = { ...api, responseTabs: updatedTabs };
+        updateApi(updatedApi);
+        apiChangeHandler(collectiondId, updatedApi);
+    }
+
+    const handleBeautifyClick = () => {
+        if (jsonEditorRef.current) {
+            const isFormatted: boolean = jsonEditorRef.current.formatJson();
+            if (!isFormatted) {
+                setInvalidJSON(true);
+            } else {
+                setInvalidJSON(false);
+            }
+        }
+    };
+
+    const addToServer = () => {
+        if (!api.islive) {
+            const responseTab: ApiResponseTab | undefined = api.responseTabs.find(tab => tab.id === apiResponseTabId);
+            if (responseTab) {
+                const updatedApi = { ...api, response: responseTab, islive: true };
+                updateApi(updatedApi);
+                apiServerHandler(collectiondId, updatedApi);
+            }
+        }
+    }
+
+    const removeFromServer = () => {
+        if (api.islive) {
+            const updatedApi = { ...api, islive: false };
+            updateApi(updatedApi);
+            apiServerHandler(collectiondId, updatedApi);
+        }
+    }
+
+    function handleRequestType(value: Api['method']): void {
+        const updatedApi = { ...api, method: value };
+        updateApi(updatedApi);
+        apiChangeHandler(collectiondId, updatedApi);
+    }
+
+    function handleApiResponse(tabId: string): void {
+        const responseTab: ApiResponseTab | undefined = api.responseTabs.find(tab => tab.id === tabId);
+        if (responseTab) {
+            const updatedApi = { ...api, response: responseTab };
+            updateApi(updatedApi);
+            setApiResponseTabId(tabId);
+            setResponseTab(tabId);
+            renderResponseTab(tabId);
+            apiChangeHandler(collectiondId, updatedApi);
+        }
+    }
+
+    function handleApiLatency(latency: number): void {
+        if (latency) {
+            const updatedApi = { ...api, latency: latency };
+            updateApi(updatedApi);
+            apiChangeHandler(collectiondId, updatedApi);
+        }
+    }
+
+    function handleTabNameChange(id: string, value: string): void {
+        const updatedTabs: ApiResponseTab[] = api.responseTabs.map(tab => {
+            if (tab.id === id) {
+                return { ...tab, name: value };
+            }
+            return tab;
+        });
+        const updatedApi = { ...api, responseTabs: updatedTabs };
+        updateApi(updatedApi);
+        apiChangeHandler(collectiondId, updatedApi);
+    }
+
+    function handleApiNameChange(apiName: string): void {
+        const updatedApi = { ...api, name: apiName };
+        updateApi(updatedApi);
+        apiChangeHandler(collectiondId, updatedApi);
+    }
+
     return (
         <>
             <div className="server-container">
                 <div className='server-form-container'>
                     <div className='server-request-config-container'>
                         <div className='server-breadcrumb'>
-                            New Collection / {api.name}
+                            New Collection / <input value={`${api.name}`} onChange={(e) => handleApiNameChange(e.target.value)}></input>
                         </div>
-                        <div className="server-url-container">
-                            <select name="server-request-type" id="server-request-type" className="server-request-type-select"
-                                defaultValue="get">
+                        <div key={`${api.id}-server-url-container`} className="server-url-container">
+                            <select name={`${api.id}-server-request-type`} id={`${api.id}-server-request-type`} className="server-request-type-select"
+                                defaultValue={api.method} onChange={(e) => handleRequestType(e.target.value as Api['method'])}>
                                 <option className="request-type-get" value="get">GET</option>
                                 <option className="request-type-post" value="post">POST</option>
                                 <option className="request-type-put" value="put">PUT</option>
@@ -26,90 +237,118 @@ const ServerComponent: React.FC = () => {
                             <input type="text" className="server-url-domain" value="http://localhost" disabled></input>
                             <input type="text" className="server-url-port" value="5256" disabled></input>
                             <input id="pas-url-endpoint" name="server-url-endpoint" type="text" className="server-url-endpoint"
-                                value={api.endpoint} placeholder="Enter the endpoint starting with /"></input>
+                                value={api.endpoint} onChange={(e) => handleServerEndpointChange(e.target.value)} placeholder="Enter the endpoint starting with /"></input>
                             <div className="live-server-button">
-                                <Button label='Live' type='secondary' handler={() => { }} />
-                            </div>
-                        </div>
-
-                        <div className='server-request-validator'>
-                            <div className='server-request-validator-options'>
-                                <div className='server-request-validator-option'>Authorization</div>
-                                <div className='server-request-validator-option'>Params</div>
-                                <div className='server-request-validator-option' data-bs-toggle="collapse" data-bs-target="#request-headers">Headers</div>
-                                <div className='server-request-validator-option' data-bs-toggle="collapse" data-bs-target="#request-body" >
-                                    Body
-                                </div>
-                            </div>
-                            <div className='server-request-validator-container'>
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                               he reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-                               
-
+                                {!api.islive && <Button label='Live' type='secondary' size='lg' handler={() => { addToServer() }} />}
+                                {api.islive &&
+                                    <><Button label='Reload' type='primary' size='sm' handler={() => { addToServer() }} />
+                                        <Button label='Stop' type='secondary' size='sm' handler={() => { removeFromServer() }} />
+                                    </>
+                                }
                             </div>
                         </div>
                     </div>
-                    <div className='server-response-container'>
+                    <div key={`${api.id}-response-container`} className='server-response-container'>
                         <div className='server-response-status'>
-                            <ul>
-                                <li className='radio-ehecked'>
-                                    <input type="radio" name="response-status" id="response-status-200"
-                                        value="200"></input>
-                                    <label htmlFor="response-status-200">200</label>
-                                </li>
-                                <li>
-                                    <input type="radio" name="response-status" id="response-status-400"
-                                        value="400"></input>
-                                    <label htmlFor="response-status-400">400</label>
-                                </li>
-                                <li>
-                                    <input type="radio" name="response-status" id="response-status-500"
-                                        value="500"></input>
-                                    <label htmlFor="response-status-500">500</label>
-                                </li>
-                            </ul>
+                            <div className='d-flex align-items-center'>
+                                API Response:
+                                <select defaultValue={api.response.id} onChange={(e) => handleApiResponse(e.target.value)}>
+                                    {api.responseTabs.map(tab => (
+                                        <option key={`${tab.id}-${tab.name}`} value={tab.id}>{tab.httpStatus.code} | {tab.name || tab.httpStatus.status}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className='server-response-latency'>
+                                Latency:
+                                <select defaultValue={api.latency} onChange={(e) => handleApiLatency(e.target.value as unknown as number)}>
+                                    {AppUtil.getLatency().map(latency => (
+                                        <option key={`${api.id}-${latency.value}`} value={latency.value}>{latency.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                         <div className='response-type-tab-container'>
-                            <div className='response-type-tab'>
-                                <div className="tab-label">200 Success</div>
-                                <div className="close-tab">+</div>
-                            </div>
-                            <div className="new-response-type-tab-btn">+</div>
-                        </div>
-                        <div className='response-data-type-config'>
-                            <div className='response-data-type'>
-                                <ul>
-                                    <li className='radio-ehecked'>
-                                        <input type="radio" name="response-data-type" id="response-data-type-none"
-                                            value="none" ></input>
-                                        <label htmlFor="response-data-type-none">None</label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" name="response-data-type" id="response-data-type-string"
-                                            value="string"></input>
-                                        <label htmlFor="response-data-type-string">String</label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" name="response-data-type" id="response-data-type-json"
-                                            value="json"></input>
-                                        <label htmlFor="response-data-type-json">JSON</label>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div className='response-data-type-formatter'>
-                                Beautify
+                            <div className='d-flex'>
+                                {api.responseTabs && api?.responseTabs.map(tab => (
+                                    <div key={`${api.id}-${tab.id}`} className={`response-type-tab ${activeTab === tab.id ? 'active-tab' : ''}`}>
+                                        <div className="tab-label"
+                                            onClick={() => renderResponseTab(tab.id)}
+                                        >{`${tab.httpStatus.code} | ${tab.name || tab.httpStatus.status}`}</div>
+                                        {api.responseTabs.length > 1 && <div className="close-tab" onClick={() => { removeResponeTab(tab.id) }}>+</div>}
+                                    </div>
+                                ))
+                                }
+                                <div className="new-response-type-tab-btn" onClick={addNewResponseTab}>+</div>
                             </div>
                         </div>
-                        <div className='response-body-config'>
-                            <div className='response-body-tab'>Body</div>
-                            <div className='response-body-header'>Headers</div>
-                        </div>
-                        <div className='response-body-content'
-                            contentEditable="true">respone</div>
+                        {api.responseTabs && api.responseTabs.map((tab) => (
+                            <>
+
+                                {<div className={`${activeTab == tab.id ? '' : 'd-none'} h-100 response-tab-container`} key={tab.id}>
+                                    <div className='response-tab-name-input-container'>
+                                        <input maxLength={20} value={tab.name} onChange={(e) => handleTabNameChange(tab.id, e.target.value)}></input>
+                                    </div>
+                                    <div id={`#response-${tab.httpStatus.code}-${tab.httpStatus.status}`} className={`response-body-config`}>
+                                        <div className={`${activeResponseContent == `response-body-${tab.id}` ? 'active-content-tab' : ''}`} onClick={() => renderResponseContent(`response-body-${tab.id}`)}>Body</div>
+                                        <div className={`${activeResponseContent == `response-headers-${tab.id}` ? 'active-content-tab' : ''}`} onClick={() => renderResponseContent(`response-headers-${tab.id}`)}>Headers</div>
+                                    </div>
+                                    <div className='response-body'>
+                                        <div id={`body-${tab.id}`} className={`${activeResponseContent == `response-body-${tab.id}` ? 'h-100' : 'd-none'}`}>
+                                            <div className='response-data-type-config'>
+                                                <div className='response-data-type'></div>
+                                                <div className='response-status-select d-flex align-items-center'>
+                                                    Response Status:
+                                                    <select defaultValue={tab.httpStatus.code} onChange={(e) => { handleResponseStatusCode(tab.id, e.target.value as unknown as HttpStatusCode['code']) }}>
+                                                        {AppUtil.getHttpRequests().map(req => (
+                                                            <option key={`${tab.id}-${req.code}`} value={req.code}>{`${req.code} ${req.status}`}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className='response-data-type-formatter'>
+                                                    <div onClick={handleBeautifyClick}>Beautify</div>
+                                                </div>
+                                            </div>
+                                            <div className='response-body-content-container'>
+                                                <JsonEditor
+                                                    ref={jsonEditorRef}
+                                                    initialJson={tab.responseBody.content}
+                                                    onChange={(newJson) => handleResponseInput(tab.id, newJson, tab.responseBody.contentType)}
+                                                />
+                                                <div className={`invalid-json ${isInvalidJSON ? '' : 'd-none'}`}>Invalid Json</div>
+                                            </div>
+                                        </div>
+                                        <div id={`headers-${tab.id}`} className={`${activeResponseContent == `response-headers-${tab.id}` ? '' : 'd-none'}`}>
+                                            <div className='response-headers-container'>
+                                                <div className='response-headers-content'>
+                                                    <div className='response-headers-table'>
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th></th>
+                                                                    <th>Key</th>
+                                                                    <th>Value</th>
+                                                                    <th>Description</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {tab.headers && tab.headers.map((header, index) => (
+                                                                    <tr key={index}>
+                                                                        <td></td>
+                                                                        <td><input placeholder={header.keyPlaceholder} value={header.key} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, key: e.target.value })}></input></td>
+                                                                        <td><input placeholder={header.valuePlaceholder} value={header.value} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, value: e.target.value })}></input></td>
+                                                                        <td><input placeholder={header.descriptionPlaceholder} value={header.description} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, description: e.target.value })}></input></td>
+                                                                    </tr>))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+
+                            </>))}
                     </div>
                 </div>
             </div>
