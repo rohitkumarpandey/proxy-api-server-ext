@@ -52,7 +52,7 @@ function App() {
   const addCollectionBtnHandler = (collection: Collection) => {
     updateCollections([...collections, collection]);
     setLandingPageVisibility(false);
-    navigate('/collection', { state: { collections } });
+    navigate('/collection', { state: { collection } });
   }
   const addNewApiBtnHandler = (collectionId: string) => {
     const updatedCollections = collections.map(collection => {
@@ -90,7 +90,6 @@ function App() {
 
   const startLiveServer = (collections: Collection[]): void => {
     const appState: State = prepareApiState(collections);
-    console.log('App state:', appState);
     ExtensionService.saveStateAndStartServer(appState);
   }
 
@@ -125,7 +124,14 @@ function App() {
     });
     return appState;
   }
+  const collectionViewer = (collection: Collection) => {
+    navigate('/collection', { state: { collection } });
+  }
 
+  const updateCollection = (collection: Collection) => {
+    const updatedCollections = collections.map(c => c.id === collection.id ? collection : c);
+    updateCollections(updatedCollections);
+  }
   return (
     <div className="App">
       <div className='pas-container'>
@@ -133,6 +139,7 @@ function App() {
           <SidebarComponent
             collections={collections}
             addCollectionBtnHandler={addCollectionBtnHandler}
+            collectionViewer={collectionViewer}
             serverHandler={serverHandler}
             addNewApiBtnHandler={addNewApiBtnHandler} />
         </div>
@@ -142,7 +149,7 @@ function App() {
           }
           <Routes>
             <Route path="/server" element={<ServerComponent apiServerHandler={apiServerHandler} apiChangeHandler={apiChangeHandler} />} />
-            <Route path="/collection" element={<CollectionComponent />} />
+            <Route path="/collection" element={<CollectionComponent onCollectionUpdate={updateCollection} />} />
           </Routes>
         </div>
       </div>

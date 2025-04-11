@@ -7,9 +7,9 @@ export const CONSTANT = {
             DESCRIPTION: 'New Collection'
         },
         API: {
-            NAME: 'http://localhost:5256',
+            NAME: 'New Request',
             URL: 'http://localhost:5256',
-            METHOD: 'GET',
+            METHOD: 'get',
             ENDPOINT: '',
             IS_LIVE: false,
             LATENCY: 0,

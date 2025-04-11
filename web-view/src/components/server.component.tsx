@@ -184,8 +184,10 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
         if (responseTab) {
             const updatedApi = { ...api, response: responseTab };
             updateApi(updatedApi);
-            apiChangeHandler(collectiondId, updatedApi);
             setApiResponseTabId(tabId);
+            setResponseTab(tabId);
+            renderResponseTab(tabId);
+            apiChangeHandler(collectiondId, updatedApi);
         }
     }
 
@@ -209,13 +211,19 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
         apiChangeHandler(collectiondId, updatedApi);
     }
 
+    function handleApiNameChange(apiName: string): void {
+        const updatedApi = { ...api, name: apiName };
+        updateApi(updatedApi);
+        apiChangeHandler(collectiondId, updatedApi);
+    }
+
     return (
         <>
             <div className="server-container">
                 <div className='server-form-container'>
                     <div className='server-request-config-container'>
                         <div className='server-breadcrumb'>
-                            New Collection / <input value={`${api.name}${api.endpoint}`}></input>
+                            New Collection / <input value={`${api.name}`} onChange={(e) => handleApiNameChange(e.target.value)}></input>
                         </div>
                         <div key={`${api.id}-server-url-container`} className="server-url-container">
                             <select name={`${api.id}-server-request-type`} id={`${api.id}-server-request-type`} className="server-request-type-select"
@@ -232,7 +240,11 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                                 value={api.endpoint} onChange={(e) => handleServerEndpointChange(e.target.value)} placeholder="Enter the endpoint starting with /"></input>
                             <div className="live-server-button">
                                 {!api.islive && <Button label='Live' type='secondary' size='lg' handler={() => { addToServer() }} />}
-                                {api.islive && <Button label='Stop' type='primary' size='lg' handler={() => { removeFromServer() }} />}
+                                {api.islive &&
+                                    <><Button label='Reload' type='primary' size='sm' handler={() => { addToServer() }} />
+                                        <Button label='Stop' type='secondary' size='sm' handler={() => { removeFromServer() }} />
+                                    </>
+                                }
                             </div>
                         </div>
                     </div>
@@ -283,6 +295,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                                     <div className='response-body'>
                                         <div id={`body-${tab.id}`} className={`${activeResponseContent == `response-body-${tab.id}` ? 'h-100' : 'd-none'}`}>
                                             <div className='response-data-type-config'>
+                                                <div className='response-data-type'></div>
                                                 <div className='response-status-select d-flex align-items-center'>
                                                     Response Status:
                                                     <select defaultValue={tab.httpStatus.code} onChange={(e) => { handleResponseStatusCode(tab.id, e.target.value as unknown as HttpStatusCode['code']) }}>
