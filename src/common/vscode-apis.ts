@@ -93,17 +93,22 @@ const loadState = (context: vscode.ExtensionContext): State | undefined => {
             api.apiDetails.handler = (req: any, res: any) => {
                 setTimeout(() => {
                     try {
-                        api.apiDetails.response.body.content = JSON.parse(api.apiDetails.response.body.content);
-                    } catch (error) {
-
-                    }
-                    api.apiDetails.response.headers.forEach((header) => {
-                        if (header.name.trim() && header.value.trim()) {
-                            res.setHeader(header.name, header.value);
+                        const responseBody = api.apiDetails.response.body.content;
+                        if (responseBody && responseBody.trim()) {
+                            const parsedResponseBody = JSON.parse(responseBody);
+                            api.apiDetails.response.headers.forEach((header) => {
+                                if (header.name.trim() && header.value.trim()) {
+                                    res.setHeader(header.name, header.value);
+                                }
+                            });
+                            res.status(api.apiDetails.responseCode).json(parsedResponseBody);
+                        } else {
+                            // Send a void response if no content exists
+                            res.status(api.apiDetails.responseCode).end();
                         }
-                    });
-
-                    res.status(api.apiDetails.responseCode).json(api.apiDetails.response.body.content);
+                    } catch (error) {
+                        res.status(500).json(error).end();
+                    }
                 }, api.apiDetails.latency || 0);
             }
         });

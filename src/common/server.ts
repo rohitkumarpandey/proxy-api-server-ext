@@ -21,7 +21,7 @@ function loadApis(context: vscode.ExtensionContext) {
             });
         });
     }
-    app.get('/', (req, res) => {
+    app.get('/status', (req, res) => {
         const liveApis: string[] = [];
         state && state.collections.forEach((collection: Collection) => {
             collection.apis.forEach((api: Api) => {

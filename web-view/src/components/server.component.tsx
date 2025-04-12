@@ -338,7 +338,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                                                             <tbody>
                                                                 {tab.headers && tab.headers.map((header, index) => (
                                                                     <tr key={index}>
-                                                                        <td></td>
+                                                                        <td><input type='checkbox' checked></input></td>
                                                                         <td><input placeholder={header.keyPlaceholder} value={header.key} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, key: e.target.value })}></input></td>
                                                                         <td><input placeholder={header.valuePlaceholder} value={header.value} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, value: e.target.value })}></input></td>
                                                                         <td><input placeholder={header.descriptionPlaceholder} value={header.description} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, description: e.target.value })}></input></td>

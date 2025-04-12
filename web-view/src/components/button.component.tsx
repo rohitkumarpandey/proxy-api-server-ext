@@ -3,12 +3,13 @@ interface ButtonProps {
     label: string;
     type?: 'primary' | 'secondary';
     size?: 'sm' | 'md' | 'lg';
+    isDisabled?: boolean;
     handler: () => void;
 }
-const Button: React.FC<ButtonProps> = ({ label, type = 'primary', size = 'sm', handler }) => {
+const Button: React.FC<ButtonProps> = ({ label, type = 'primary', size = 'sm', isDisabled, handler }) => {
     return (
         <>
-            <button className={`btn-${type} btn-${size}`} onClick={handler}>
+            <button className={`btn-${type} btn-${size}`} disabled={isDisabled} onClick={handler}>
                 {label}
             </button></>
     )
