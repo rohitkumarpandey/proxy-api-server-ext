@@ -1,6 +1,7 @@
 import React from 'react';
 import { Api, Collection } from '../model/collection.model';
 import AppUtil from '../common/app.util';
+import { CONSTANT } from '../common/constant';
 
 interface SidebarProps {
   collections: Collection[];
@@ -8,9 +9,10 @@ interface SidebarProps {
   addNewApiBtnHandler: (collectionId: string) => void;
   collectionViewer: (collection: Collection) => void;
   serverHandler: (collection: string, api: Api) => void;
+  onApiDelete: (collectionId: string, apiId: string) => void;
 }
 
-const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBtnHandler, collectionViewer, serverHandler, addNewApiBtnHandler }) => {
+const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBtnHandler, collectionViewer, serverHandler, addNewApiBtnHandler, onApiDelete }) => {
 
 
   function addNewCollection(handler: (collection: Collection) => void) {
@@ -27,7 +29,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBt
   function apiSelection(apiContainerId: string) {
     const apiContainer = document.getElementById(apiContainerId);
     // remove the active class from all api containers
-    const allApiContainers = document.querySelectorAll('.api-container');
+    const allApiContainers = document.querySelectorAll('.api-method-container');
     allApiContainers.forEach((container) => {
       container.classList.remove('active-api');
     });
@@ -36,20 +38,30 @@ const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBt
       apiContainer.classList['add']('active-api');
     }
   }
+  function clearApiSelection() {
+    const allApiContainers = document.querySelectorAll('.api-method-container');
+    allApiContainers.forEach((container) => {
+      container.classList.remove('active-api');
+    }
+    );
+  }
   return (
     <div className="sidebar">
       <div className="collection">
         <div>Collections</div>
         <div className='collection-add-btn' onClick={() => addNewCollection(addCollectionBtnHandler)}>+</div>
       </div>
-      <div className="accordion">
+      <div className="collections-container">
         {collections.map((collection, index) => (
           <div key={index} className="accordion-item">
             <h2 className="accordion-header" id={`heading${index}`}>
               <div
                 id={`accordion-btn-${index}`}
                 className="accordion-button collapsed"
-                onClick={() => collectionViewer(collection)}
+                onClick={() => {
+                  clearApiSelection()
+                  collectionViewer(collection)
+                }}
               >
                 <span id={`accordion-item-${collection.id}`} className="accordion-icon accordion-expand-btn" data-bs-toggle="collapse"
                   data-bs-target={`#collapse${index}`}
@@ -57,7 +69,8 @@ const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBt
                   aria-controls={`collapse${index}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    collapseCollections(`accordion-btn-${index}`)}
+                    collapseCollections(`accordion-btn-${index}`)
+                  }
                   }></span>
                 {collection.name}
                 <div className='collection-api-options'>
@@ -75,8 +88,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBt
               aria-labelledby={`heading${index}`}
             >
               {collection.api.map((api) => (
-                <div className="accordion-body" onClick={() => 
-                {
+                <div className="accordion-body" onClick={() => {
                   apiSelection(`api-container-${api.id}`);
                   serverHandler(collection.id, api)
                 }} key={api.id}>
@@ -89,8 +101,14 @@ const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBt
                         <strong className={`api-method api-method-${api.method.toLowerCase()}`}>
                           {api.method.toUpperCase()}
                         </strong>
-                        </div>
-                      <div className='api-url'>{api.name || api.url}</div>
+                      </div>
+                      <div className='api-url'>{api.name || CONSTANT.DEFAULT.API.NAME}</div>
+                      <div key={`api-delete-${api.id}`} className='api-options'>
+                        <div className='api-delete' onClick={(e) => {
+                          e.stopPropagation();
+                          onApiDelete(collection.id, api.id)
+                        }}>Remove</div>
+                      </div>
                     </div>
                   </div>
                 </div>

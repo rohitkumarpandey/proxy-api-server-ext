@@ -17,7 +17,7 @@ const registerCommands = (command: Command, context: vscode.ExtensionContext): v
     });
     return disposables;
 }
-
+let webviewPanel: vscode.WebviewPanel | undefined;
 const addNewWebViewTab = <T, R>(id: string, title: string, content: string, context: vscode.ExtensionContext, uris: { [identifier: string]: vscode.Uri },
     messageReceiver: (message: MessageReceiver<T, R>) => void, onDidDispose: (context: vscode.ExtensionContext) => void
 ): void => {
@@ -55,6 +55,7 @@ const addNewWebViewTab = <T, R>(id: string, title: string, content: string, cont
         onDidDispose(context);
     }
     );
+    webviewPanel = panel;
 }
 
 const addStatusBarItem = (alignment: vscode.StatusBarAlignment, priority: number, command: CommandDetails): vscode.StatusBarItem => {
@@ -102,7 +103,7 @@ const loadState = (context: vscode.ExtensionContext): State | undefined => {
                         }
                     });
 
-                    res.status(api.apiDetails.responseCode)['json'](api.apiDetails.response.body.content);
+                    res.status(api.apiDetails.responseCode).json(api.apiDetails.response.body.content);
                 }, api.apiDetails.latency || 0);
             }
         });
@@ -113,6 +114,14 @@ const deleteState = (context: vscode.ExtensionContext): Thenable<void> => {
     return context.globalState.update(CONSTANT.IDENTIFIER.GLOBAL_STATE, undefined);
 }
 
+const postMessageToWebview = (command: string, data?: any) => {
+    if (webviewPanel) {
+        webviewPanel.webview.postMessage({
+            command: command,
+            data: data
+        });
+    }
+}
 export {
     toastMessage,
     registerCommands,
@@ -121,5 +130,6 @@ export {
     loadState,
     saveState,
     deleteState,
-    saveWebViewState
+    saveWebViewState,
+    postMessageToWebview
 }

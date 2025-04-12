@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Api, ApiResponseTab, HttpStatusCode, ResponseHeader } from '../model/collection.model';
 import AppUtil from '../common/app.util';
 import JsonEditor from './json-editor.component';
+import { CONSTANT, CONSTRAINT } from '../common/constant';
 
 interface ServerComponentProps {
     apiServerHandler: (collectionId: string, api: Api) => void;
@@ -154,8 +155,8 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
         }
     };
 
-    const addToServer = () => {
-        if (!api.islive) {
+    const addToServer = (reload: boolean = false) => {
+        if (!api.islive || reload) {
             const responseTab: ApiResponseTab | undefined = api.responseTabs.find(tab => tab.id === apiResponseTabId);
             if (responseTab) {
                 const updatedApi = { ...api, response: responseTab, islive: true };
@@ -211,7 +212,10 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
         apiChangeHandler(collectiondId, updatedApi);
     }
 
-    function handleApiNameChange(apiName: string): void {
+    function handleApiNameChange(apiName: string, onBlur: boolean = false): void {
+        if (onBlur && apiName === '') {
+            apiName = CONSTANT.DEFAULT.API.NAME;
+        }
         const updatedApi = { ...api, name: apiName };
         updateApi(updatedApi);
         apiChangeHandler(collectiondId, updatedApi);
@@ -223,7 +227,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                 <div className='server-form-container'>
                     <div className='server-request-config-container'>
                         <div className='server-breadcrumb'>
-                            New Collection / <input value={`${api.name}`} onChange={(e) => handleApiNameChange(e.target.value)}></input>
+                            New Collection /<input value={`${api.name}`} maxLength={CONSTRAINT.INPUT.SERVER.API_NAME} onChange={(e) => handleApiNameChange(e.target.value)} onBlur={()=>handleApiNameChange('', true)}></input>
                         </div>
                         <div key={`${api.id}-server-url-container`} className="server-url-container">
                             <select name={`${api.id}-server-request-type`} id={`${api.id}-server-request-type`} className="server-request-type-select"
@@ -241,7 +245,8 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                             <div className="live-server-button">
                                 {!api.islive && <Button label='Live' type='secondary' size='lg' handler={() => { addToServer() }} />}
                                 {api.islive &&
-                                    <><Button label='Reload' type='primary' size='sm' handler={() => { addToServer() }} />
+                                    <>
+                                        <Button label='Reload' type='primary' size='sm' handler={() => { addToServer(true) }} />
                                         <Button label='Stop' type='secondary' size='sm' handler={() => { removeFromServer() }} />
                                     </>
                                 }
@@ -286,7 +291,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
 
                                 {<div className={`${activeTab == tab.id ? '' : 'd-none'} h-100 response-tab-container`} key={tab.id}>
                                     <div className='response-tab-name-input-container'>
-                                        <input maxLength={20} value={tab.name} onChange={(e) => handleTabNameChange(tab.id, e.target.value)}></input>
+                                        <input maxLength={CONSTRAINT.INPUT.SERVER.RESPONSE.TAB.NAME} value={tab.name} onChange={(e) => handleTabNameChange(tab.id, e.target.value)}></input>
                                     </div>
                                     <div id={`#response-${tab.httpStatus.code}-${tab.httpStatus.status}`} className={`response-body-config`}>
                                         <div className={`${activeResponseContent == `response-body-${tab.id}` ? 'active-content-tab' : ''}`} onClick={() => renderResponseContent(`response-body-${tab.id}`)}>Body</div>
