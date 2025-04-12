@@ -47,6 +47,7 @@ const stopServer = (context: vscode.ExtensionContext) => {
     if (isServerRunning()) {
         server && server.close(() => {
             vscodeApi.toastMessage('Server stopped');
+            vscodeApi.postMessageToWebview('serverStopped');
         });
     }
 }

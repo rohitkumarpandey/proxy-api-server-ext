@@ -16,6 +16,7 @@ import LoadingComponent from './components/loading.component';
 function App() {
   const location = useLocation();
   const [displayLandingPage, setLandingPageVisibility] = useState<boolean>(true);
+  const [serverLive, setServerLive] = useState<boolean>(false);
   useEffect(() => {
     if (location.pathname === '' || location.pathname === '/' || location.pathname === '/index.html') {
       setLandingPageVisibility(true);
@@ -38,6 +39,11 @@ function App() {
         }
       }
       if (command === 'serverStarted') {
+        setServerLive(true);
+        LoadingService.hide();
+      }
+      if (command === 'serverStopped') {
+        setServerLive(false);
         LoadingService.hide();
       }
     };
@@ -138,6 +144,24 @@ function App() {
     const updatedCollections = collections.map(c => c.id === collection.id ? collection : c);
     updateCollections(updatedCollections);
   }
+  const deleteCollection = (collectionId: string) => {
+    const updatedCollections = collections.filter(collection => collection.id !== collectionId);
+    updateCollections(updatedCollections);
+    navigate('/');
+  }
+  const deleteApiHandler = (collectionId: string, apiId: string) => {
+    const updatedCollections = collections.map(collection => {
+      if (collection.id === collectionId) {
+        const updatedApi = collection.api.filter(api => api.id !== apiId);
+        return { ...collection, api: updatedApi };
+      }
+      return collection;
+    });
+    updateCollections(updatedCollections);
+    if(serverLive) {
+      startLiveServer(updatedCollections);
+    }
+  }
   return (
     <>
       <LoadingComponent />
@@ -149,7 +173,8 @@ function App() {
               addCollectionBtnHandler={addCollectionBtnHandler}
               collectionViewer={collectionViewer}
               serverHandler={serverHandler}
-              addNewApiBtnHandler={addNewApiBtnHandler} />
+              addNewApiBtnHandler={addNewApiBtnHandler}
+              onApiDelete={deleteApiHandler} />
           </div>
           <div className='pas-content'>
             {displayLandingPage &&
@@ -157,7 +182,7 @@ function App() {
             }
             <Routes>
               <Route path="/server" element={<ServerComponent apiServerHandler={apiServerHandler} apiChangeHandler={apiChangeHandler} />} />
-              <Route path="/collection" element={<CollectionComponent onCollectionUpdate={updateCollection} />} />
+              <Route path="/collection" element={<CollectionComponent onCollectionUpdate={updateCollection} onCollectionDelete={deleteCollection} />} />
             </Routes>
           </div>
         </div>

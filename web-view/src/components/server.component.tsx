@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Api, ApiResponseTab, HttpStatusCode, ResponseHeader } from '../model/collection.model';
 import AppUtil from '../common/app.util';
 import JsonEditor from './json-editor.component';
-import { CONSTRAINT } from '../common/constant';
+import { CONSTANT, CONSTRAINT } from '../common/constant';
 
 interface ServerComponentProps {
     apiServerHandler: (collectionId: string, api: Api) => void;
@@ -212,7 +212,10 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
         apiChangeHandler(collectiondId, updatedApi);
     }
 
-    function handleApiNameChange(apiName: string): void {
+    function handleApiNameChange(apiName: string, onBlur: boolean = false): void {
+        if (onBlur && apiName === '') {
+            apiName = CONSTANT.DEFAULT.API.NAME;
+        }
         const updatedApi = { ...api, name: apiName };
         updateApi(updatedApi);
         apiChangeHandler(collectiondId, updatedApi);
@@ -224,7 +227,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                 <div className='server-form-container'>
                     <div className='server-request-config-container'>
                         <div className='server-breadcrumb'>
-                            New Collection / <input value={`${api.name}`} maxLength={CONSTRAINT.INPUT.SERVER.API_NAME} onChange={(e) => handleApiNameChange(e.target.value)}></input>
+                            New Collection /<input value={`${api.name}`} maxLength={CONSTRAINT.INPUT.SERVER.API_NAME} onChange={(e) => handleApiNameChange(e.target.value)} onBlur={()=>handleApiNameChange('', true)}></input>
                         </div>
                         <div key={`${api.id}-server-url-container`} className="server-url-container">
                             <select name={`${api.id}-server-request-type`} id={`${api.id}-server-request-type`} className="server-request-type-select"
