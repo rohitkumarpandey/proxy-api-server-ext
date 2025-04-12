@@ -39,6 +39,7 @@ const startServer = (context: vscode.ExtensionContext) => {
     loadApis(context);
     server = app.listen(PORT, 'localhost', () => {
         vscodeApi.toastMessage(`Server started on http://localhost:${PORT}`);
+        vscodeApi.postMessageToWebview('serverStarted');
     });
 }
 

@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { Collection } from "../model/collection.model";
 import { useState } from "react";
+import { CONSTRAINT } from "../common/constant";
 interface CollectionComponentProps {
     onCollectionUpdate: (collection: Collection) => void;
 }
@@ -24,8 +25,8 @@ const CollectionComponent: React.FC<CollectionComponentProps> = ({onCollectionUp
     return (
         <>
             <div className="pas-collection-viewer">
-                <input type="text" className="pas-collection-viewer-name" value={collectionName} onChange={(e) => { handleNameChange(e.target.value) }} />
-                <textarea className="pas-collection-viewer-description" rows={8} value={collectionDescription} onChange={(e) => { handleDescriptionChange(e.target.value) }}>
+                <input type="text" className="pas-collection-viewer-name" maxLength={CONSTRAINT.INPUT.COLLECTION.NAME} value={collectionName} onChange={(e) => { handleNameChange(e.target.value) }} />
+                <textarea className="pas-collection-viewer-description" maxLength={CONSTRAINT.INPUT.COLLECTION.DESCRIPTION} rows={8} value={collectionDescription} onChange={(e) => { handleDescriptionChange(e.target.value) }}>
                 </textarea>
                 <strong>Total APIs: {collection.api.length}</strong>
                 <div className="pas-collection-apis-viewer">

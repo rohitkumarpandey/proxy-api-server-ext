@@ -27,7 +27,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBt
   function apiSelection(apiContainerId: string) {
     const apiContainer = document.getElementById(apiContainerId);
     // remove the active class from all api containers
-    const allApiContainers = document.querySelectorAll('.api-container');
+    const allApiContainers = document.querySelectorAll('.api-method-container');
     allApiContainers.forEach((container) => {
       container.classList.remove('active-api');
     });

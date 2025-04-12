@@ -10,6 +10,8 @@ import AppUtil from './common/app.util';
 import LandingPageComponent from './components/landing-page.component';
 import { State, StateApi, StateApiDetails, StateApiHeaderDetails, StateApiResponseBodyDetails, StateApiResponseDetails, StateCollection } from './model/api-server.model';
 import { ExtensionService } from './service/extension.service';
+import { LoadingService } from './service/loading.service';
+import LoadingComponent from './components/loading.component';
 
 function App() {
   const location = useLocation();
@@ -34,6 +36,9 @@ function App() {
         if (data && data.collections) {
           setCollections(data.collections);
         }
+      }
+      if (command === 'serverStarted') {
+        LoadingService.hide();
       }
     };
 
@@ -73,7 +78,7 @@ function App() {
     const updatedCollections = apiChangeHandler(collectionId, api);
     startLiveServer(updatedCollections);
   }
-  
+
   const apiChangeHandler = (collectionId: string, updatedApi: Api): Collection[] => {
     const updatedCollections = collections.map(collection => {
       if (collection.id === collectionId) {
@@ -89,6 +94,7 @@ function App() {
   }
 
   const startLiveServer = (collections: Collection[]): void => {
+    LoadingService.show();
     const appState: State = prepareApiState(collections);
     ExtensionService.saveStateAndStartServer(appState);
   }
@@ -133,27 +139,30 @@ function App() {
     updateCollections(updatedCollections);
   }
   return (
-    <div className="App">
-      <div className='pas-container'>
-        <div className="pas-sidebar">
-          <SidebarComponent
-            collections={collections}
-            addCollectionBtnHandler={addCollectionBtnHandler}
-            collectionViewer={collectionViewer}
-            serverHandler={serverHandler}
-            addNewApiBtnHandler={addNewApiBtnHandler} />
-        </div>
-        <div className='pas-content'>
-          {displayLandingPage &&
-            <LandingPageComponent />
-          }
-          <Routes>
-            <Route path="/server" element={<ServerComponent apiServerHandler={apiServerHandler} apiChangeHandler={apiChangeHandler} />} />
-            <Route path="/collection" element={<CollectionComponent onCollectionUpdate={updateCollection} />} />
-          </Routes>
+    <>
+      <LoadingComponent />
+      <div className="App">
+        <div className='pas-container'>
+          <div className="pas-sidebar">
+            <SidebarComponent
+              collections={collections}
+              addCollectionBtnHandler={addCollectionBtnHandler}
+              collectionViewer={collectionViewer}
+              serverHandler={serverHandler}
+              addNewApiBtnHandler={addNewApiBtnHandler} />
+          </div>
+          <div className='pas-content'>
+            {displayLandingPage &&
+              <LandingPageComponent />
+            }
+            <Routes>
+              <Route path="/server" element={<ServerComponent apiServerHandler={apiServerHandler} apiChangeHandler={apiChangeHandler} />} />
+              <Route path="/collection" element={<CollectionComponent onCollectionUpdate={updateCollection} />} />
+            </Routes>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -41,3 +41,20 @@ export const CONSTANT = {
         }
     }
 }
+
+export const CONSTRAINT = {
+    INPUT: {
+        COLLECTION: {
+            NAME: 30,
+            DESCRIPTION: 500
+        },
+        SERVER: {
+            API_NAME: 20,
+            RESPONSE: {
+                TAB: {
+                    NAME: 20
+                }
+            }
+        }
+    }
+}
