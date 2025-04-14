@@ -5,6 +5,7 @@ import { CONSTANT } from './constant';
 import { State, Collection, Api } from '../model/state';
 import { MessageReceiver } from '../model/message';
 import { WebViewApi, WebViewCollection, WebViewState } from '../model/web-state.model';
+import { ExtensionState } from '../model/extension-state.model';
 const toastMessage = (message: string): void => {
     vscode.window.showInformationMessage(`Proxy API Server: ${message}`);
 }
@@ -93,17 +94,30 @@ const loadState = (context: vscode.ExtensionContext): State | undefined => {
             api.apiDetails.handler = (req: any, res: any) => {
                 setTimeout(() => {
                     try {
-                        api.apiDetails.response.body.content = JSON.parse(api.apiDetails.response.body.content);
-                    } catch (error) {
-
-                    }
-                    api.apiDetails.response.headers.forEach((header) => {
-                        if (header.name.trim() && header.value.trim()) {
-                            res.setHeader(header.name, header.value);
+                        // Set the response headers
+                        api.apiDetails.response.headers.forEach((header) => {
+                            if (header.name.trim() && header.value.trim()) {
+                                res.setHeader(header.name, header.value);
+                            }
+                        });
+                        // Set the response code
+                        const responseBody = api.apiDetails.response.body.content;
+                        if (responseBody && responseBody.trim()) {
+                            let parsedResponseBody;
+                            try {
+                                parsedResponseBody = JSON.parse(responseBody.trim());
+                            }
+                            catch (error) {
+                                parsedResponseBody = responseBody.trim();
+                            }
+                            res.status(api.apiDetails.responseCode).json(parsedResponseBody);
+                        } else {
+                            // Send a void response if no content exists
+                            res.status(api.apiDetails.responseCode).end();
                         }
-                    });
-
-                    res.status(api.apiDetails.responseCode).json(api.apiDetails.response.body.content);
+                    } catch (error) {
+                        res.status(500).json(error).end();
+                    }
                 }, api.apiDetails.latency || 0);
             }
         });
@@ -112,6 +126,12 @@ const loadState = (context: vscode.ExtensionContext): State | undefined => {
 }
 const deleteState = (context: vscode.ExtensionContext): Thenable<void> => {
     return context.globalState.update(CONSTANT.IDENTIFIER.GLOBAL_STATE, undefined);
+}
+const saveExtensionState = (context: vscode.ExtensionContext, value: ExtensionState): void => {
+    context.globalState.update(CONSTANT.IDENTIFIER.EXTENSION_STATE, value);
+}
+const getExtensionState = (context: vscode.ExtensionContext): ExtensionState | undefined => {
+    return context.globalState.get(CONSTANT.IDENTIFIER.EXTENSION_STATE);
 }
 
 const postMessageToWebview = (command: string, data?: any) => {
@@ -131,5 +151,7 @@ export {
     saveState,
     deleteState,
     saveWebViewState,
-    postMessageToWebview
+    postMessageToWebview,
+    saveExtensionState,
+    getExtensionState,
 }

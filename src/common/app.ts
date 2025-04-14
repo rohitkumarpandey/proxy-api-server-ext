@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import { ExtensionContext, StatusBarAlignment, Uri } from 'vscode';
-import { registerCommands, addNewWebViewTab, addStatusBarItem, saveState, saveWebViewState} from './vscode-apis';
+import { registerCommands, addNewWebViewTab, addStatusBarItem, saveState, saveWebViewState, getExtensionState, saveExtensionState } from './vscode-apis';
 import { COMMAND, CONSTANT } from './constant';
 import path from 'path';
 import { MessageReceiver } from '../model/message';
 import { State } from '../model/state';
-import { restartServer, stopServer } from './server';
+import { restartServer, startServer, stopServer } from './server';
 import { WebViewState } from '../model/web-state.model';
 
 const saveStateAndStartServer = (state: State, context: ExtensionContext) => {
@@ -38,11 +38,15 @@ const loadLandingTab = (context: ExtensionContext) => {
         stopServer(context);
     }
     addNewWebViewTab(CONSTANT.EXTENSION.STATUSBAR_BUTTON, CONSTANT.EXTENSION.TITLE, htmlContent, context, uris, messageReceiver, onDisponse);
+    startServer(context);
 }
 
 const initializeApp = (context: ExtensionContext) => {
-    // for development purpose only
-    loadLandingTab(context);
+    const extensionState = getExtensionState(context);
+    if (extensionState && extensionState.isFirstTimeInstalled) {
+        saveExtensionState(context, { isFirstTimeInstalled: false });
+        loadLandingTab(context);
+    }
     const disposables = registerCommands(COMMAND, context);
     context.subscriptions.push(...disposables);
     addStatusBarItem(StatusBarAlignment.Right, 100, COMMAND.LANDING_TAB);

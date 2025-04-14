@@ -24,12 +24,13 @@ export const CONSTANT = {
         STYLE_URI: '/index.css',
         LOGO_URI: '/logo.webp',
         GLOBAL_STATE: 'pas-state',
-        WEB_STATE: 'pas-web-state'
+        WEB_STATE: 'pas-web-state',
+        EXTENSION_STATE: 'pas-extension-state',
     }
 }
 
 export const COMMAND: Command = {
-    START_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.startServer`, callback: (context: ExtensionContext) => { return () => startServer(context) }, title: "Start Server" },
+    START_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.start-server`, callback: (context: ExtensionContext) => { return () => loadLandingTab(context) }, title: "Start Server" },
     STOP_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.stopServer`, callback: (context: ExtensionContext) => { return () => stopServer(context) }, title: "Stop Server" },
     START_STOP_SERVER: { name: `${CONSTANT.EXTENSION.NAME}.startStopServer`, callback: (context: ExtensionContext) => { return () => startStopServer(context) }, title: "Start/Stop Server", tooltip: "Click to start or stop the server" },
     LANDING_TAB: { name: `${CONSTANT.EXTENSION.NAME}.landingTab`, callback: (context: ExtensionContext) => { return () => loadLandingTab(context); }, title: `$(arrow-swap) Proxy API Server`, tooltip: CONSTANT.TOOLTIP.LANDING_TAB }

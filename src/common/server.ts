@@ -21,14 +21,14 @@ function loadApis(context: vscode.ExtensionContext) {
             });
         });
     }
-    app.get('/', (req, res) => {
+    app.get('/pas/status', (req, res) => {
         const liveApis: string[] = [];
         state && state.collections.forEach((collection: Collection) => {
             collection.apis.forEach((api: Api) => {
-                liveApis.push(api.apiDetails.endpoint);
+                liveApis.push(api.apiDetails.endpoint || '/');
             });
         });
-        res.status(200).json({ message: 'Server is running', liveApis });
+        res.status(200).json({ message: 'Server is running', port: PORT, baseUrl: `http://localhost:${PORT}`, liveApis });
     });
 }
 
@@ -43,11 +43,15 @@ const startServer = (context: vscode.ExtensionContext) => {
     });
 }
 
-const stopServer = (context: vscode.ExtensionContext) => {
+const stopServer = (context: vscode.ExtensionContext, isRestart: boolean = false) => {
     if (isServerRunning()) {
         server && server.close(() => {
-            vscodeApi.toastMessage('Server stopped');
-            vscodeApi.postMessageToWebview('serverStopped');
+            if (!isRestart) {
+                vscodeApi.toastMessage('Server stopped');
+                vscodeApi.postMessageToWebview('serverStopped');
+            } else {
+                vscodeApi.postMessageToWebview('serverRestarting');
+            }
         });
     }
 }
@@ -57,7 +61,7 @@ const startStopServer = (context: vscode.ExtensionContext) => {
 }
 
 const restartServer = (context: vscode.ExtensionContext) => {
-    stopServer(context);
+    stopServer(context, true);
     setTimeout(() => {
         startServer(context);
     }, 1000);

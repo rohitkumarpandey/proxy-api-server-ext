@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import SidebarComponent from './components/sidebar.component';
 import './App.scss';
 import ServerComponent from './components/server.component';
@@ -12,18 +12,11 @@ import { State, StateApi, StateApiDetails, StateApiHeaderDetails, StateApiRespon
 import { ExtensionService } from './service/extension.service';
 import { LoadingService } from './service/loading.service';
 import LoadingComponent from './components/loading.component';
+import { SubscriberService } from './service/subscriber.service';
+import { MessageType } from './common/message-type';
 
 function App() {
-  const location = useLocation();
-  const [displayLandingPage, setLandingPageVisibility] = useState<boolean>(true);
   const [serverLive, setServerLive] = useState<boolean>(false);
-  useEffect(() => {
-    if (location.pathname === '' || location.pathname === '/' || location.pathname === '/index.html') {
-      setLandingPageVisibility(true);
-    } else {
-      setLandingPageVisibility(false);
-    };
-  }, [location]);
   const navigate = useNavigate();
   const [collections, setCollections] = useState<Collection[]>([
     AppUtil.getNewCollection()
@@ -39,10 +32,15 @@ function App() {
         }
       }
       if (command === 'serverStarted') {
+        SubscriberService.notifyApplicationStatus(MessageType.APP_LIVE);
         setServerLive(true);
         LoadingService.hide();
       }
+      if (command === 'serverRestarting') {
+        SubscriberService.notifyApplicationStatus(MessageType.APP_RESTARTING);
+      }
       if (command === 'serverStopped') {
+        SubscriberService.notifyApplicationStatus(MessageType.APP_STOPPED);
         setServerLive(false);
         LoadingService.hide();
       }
@@ -62,7 +60,6 @@ function App() {
   }
   const addCollectionBtnHandler = (collection: Collection) => {
     updateCollections([...collections, collection]);
-    setLandingPageVisibility(false);
     navigate('/collection', { state: { collection } });
   }
   const addNewApiBtnHandler = (collectionId: string) => {
@@ -76,7 +73,6 @@ function App() {
   }
 
   const serverHandler = (collectionId: string, api: Api) => {
-    setLandingPageVisibility(false);
     navigate('/server', { state: { collectionId: collectionId, api: api } });
   }
 
@@ -161,6 +157,7 @@ function App() {
     if(serverLive) {
       startLiveServer(updatedCollections);
     }
+    navigate('/');
   }
   return (
     <>
@@ -177,10 +174,8 @@ function App() {
               onApiDelete={deleteApiHandler} />
           </div>
           <div className='pas-content'>
-            {displayLandingPage &&
-              <LandingPageComponent />
-            }
             <Routes>
+              <Route path="/" element={<LandingPageComponent />} />
               <Route path="/server" element={<ServerComponent apiServerHandler={apiServerHandler} apiChangeHandler={apiChangeHandler} />} />
               <Route path="/collection" element={<CollectionComponent onCollectionUpdate={updateCollection} onCollectionDelete={deleteCollection} />} />
             </Routes>
