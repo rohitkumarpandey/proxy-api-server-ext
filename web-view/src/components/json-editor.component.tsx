@@ -12,11 +12,17 @@ const JsonEditor = forwardRef<{ formatJson: () => boolean }, { initialJson: stri
         setLineNumbers(lines.map((_, index) => `${index + 1}`));
     }, [json]);
 
+    // Synchronize the height of the line numbers and textarea
     useEffect(() => {
         if (lineNumbersRef.current && textareaRef.current) {
-            textareaRef.current.style.height = `${lineNumbersRef.current.clientHeight}px`;
+            // Reset height to auto to allow recalculation
+            textareaRef.current.style.height = 'auto';
+            lineNumbersRef.current.style.height = 'auto';
+            const scrollHeight = textareaRef.current.scrollHeight; // Get the scroll height of the textarea
+            lineNumbersRef.current.style.height = `${scrollHeight}px`; // Set the height of the line numbers
+            textareaRef.current.style.height = `${scrollHeight}px`; // Set the height of the textarea
         }
-    }, [lineNumbers])
+    }, [json, lineNumbers]);
 
     const handleJsonChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newJson = e.target.value;

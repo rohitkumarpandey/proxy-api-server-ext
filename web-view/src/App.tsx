@@ -12,6 +12,8 @@ import { State, StateApi, StateApiDetails, StateApiHeaderDetails, StateApiRespon
 import { ExtensionService } from './service/extension.service';
 import { LoadingService } from './service/loading.service';
 import LoadingComponent from './components/loading.component';
+import { SubscriberService } from './service/subscriber.service';
+import { MessageType } from './common/message-type';
 
 function App() {
   const location = useLocation();
@@ -39,10 +41,12 @@ function App() {
         }
       }
       if (command === 'serverStarted') {
+        SubscriberService.notifyApplicationStatus(MessageType.APP_LIVE);
         setServerLive(true);
         LoadingService.hide();
       }
       if (command === 'serverStopped') {
+        SubscriberService.notifyApplicationStatus(MessageType.APP_STOPPED);
         setServerLive(false);
         LoadingService.hide();
       }

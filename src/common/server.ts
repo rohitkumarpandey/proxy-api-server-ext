@@ -21,14 +21,14 @@ function loadApis(context: vscode.ExtensionContext) {
             });
         });
     }
-    app.get('/status', (req, res) => {
+    app.get('/pas/status', (req, res) => {
         const liveApis: string[] = [];
         state && state.collections.forEach((collection: Collection) => {
             collection.apis.forEach((api: Api) => {
-                liveApis.push(api.apiDetails.endpoint);
+                liveApis.push(api.apiDetails.endpoint || '/');
             });
         });
-        res.status(200).json({ message: 'Server is running', liveApis });
+        res.status(200).json({ message: 'Server is running', port: PORT,baseUrl: `http://localhost:${PORT}`, liveApis });
     });
 }
 

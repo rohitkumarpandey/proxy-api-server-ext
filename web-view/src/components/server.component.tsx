@@ -227,7 +227,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                 <div className='server-form-container'>
                     <div className='server-request-config-container'>
                         <div className='server-breadcrumb'>
-                            New Collection /<input value={`${api.name}`} maxLength={CONSTRAINT.INPUT.SERVER.API_NAME} onChange={(e) => handleApiNameChange(e.target.value)} onBlur={()=>handleApiNameChange('', true)}></input>
+                            New Collection /<input value={`${api.name}`} maxLength={CONSTRAINT.INPUT.SERVER.API_NAME} onChange={(e) => handleApiNameChange(e.target.value)} onBlur={(e) => handleApiNameChange(e.target.value, true)}></input>
                         </div>
                         <div key={`${api.id}-server-url-container`} className="server-url-container">
                             <select name={`${api.id}-server-request-type`} id={`${api.id}-server-request-type`} className="server-request-type-select"
@@ -319,7 +319,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                                                     initialJson={tab.responseBody.content}
                                                     onChange={(newJson) => handleResponseInput(tab.id, newJson, tab.responseBody.contentType)}
                                                 />
-                                                <div className={`invalid-json ${isInvalidJSON ? '' : 'd-none'}`}>Invalid Json</div>
+                                                <div className={`invalid-json ${isInvalidJSON ? '' : 'd-none'}`}></div>
                                             </div>
                                         </div>
                                         <div id={`headers-${tab.id}`} className={`${activeResponseContent == `response-headers-${tab.id}` ? '' : 'd-none'}`}>
@@ -338,7 +338,9 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
                                                             <tbody>
                                                                 {tab.headers && tab.headers.map((header, index) => (
                                                                     <tr key={index}>
-                                                                        <td><input type='checkbox' checked></input></td>
+                                                                        <td>
+                                                                            {/* <input type='checkbox' checked></input> */}
+                                                                        </td>
                                                                         <td><input placeholder={header.keyPlaceholder} value={header.key} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, key: e.target.value })}></input></td>
                                                                         <td><input placeholder={header.valuePlaceholder} value={header.value} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, value: e.target.value })}></input></td>
                                                                         <td><input placeholder={header.descriptionPlaceholder} value={header.description} onChange={(e) => handleHeaderInput(tab.id, index, { ...header, description: e.target.value })}></input></td>

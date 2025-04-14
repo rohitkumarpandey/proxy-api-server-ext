@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Api, Collection } from '../model/collection.model';
 import AppUtil from '../common/app.util';
 import { CONSTANT } from '../common/constant';
+import { SubscriberService } from '../service/subscriber.service';
+import { MessageType } from '../common/message-type';
+import { IMessageTypeKey } from '../model/message-type.model';
 
 interface SidebarProps {
   collections: Collection[];
@@ -14,7 +17,14 @@ interface SidebarProps {
 
 const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBtnHandler, collectionViewer, serverHandler, addNewApiBtnHandler, onApiDelete }) => {
 
-
+  const [appStatus, setAppStatus] = useState<IMessageTypeKey>(MessageType.NO_STATUS);
+  useEffect(() => {
+    // Subscribe to the loading$ observable
+    const subscription = SubscriberService.applicationStatus$.subscribe((status: IMessageTypeKey) => {
+      setAppStatus(status);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
   function addNewCollection(handler: (collection: Collection) => void) {
     handler(AppUtil.getNewCollection());
   }
@@ -116,6 +126,11 @@ const SidebarComponent: React.FC<SidebarProps> = ({ collections, addCollectionBt
             </div>
           </div>
         ))}
+      </div>
+      <div className='sidebar-footer'>
+        <div className={`app-status app-status-${appStatus.messageType}`}>
+          {appStatus.message}
+        </div>
       </div>
     </div>
   );

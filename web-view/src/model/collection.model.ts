@@ -17,6 +17,7 @@ export interface ResponseHeader {
     keyPlaceholder?: string,
     valuePlaceholder?: string,
     descriptionPlaceholder?: string,
+    isChecked?: boolean
 }
 export interface ApiResponseTab {
     id: string;

@@ -38,24 +38,29 @@ const CollectionComponent: React.FC<CollectionComponentProps> = ({ onCollectionU
                     {collection.api.map((api, index) => (
 
                         <div key={index} className="pas-collection-api-viewer">
+                            <strong>{`${(index + 1)}.`}</strong>
                             <div className={`api-live-container ${api.islive ? 'api-live' : ''}`}>
                                 <div></div>
                             </div>
-                            <div><strong className={`api-method api-method-${api.method.toLowerCase()}`}>
-                                {api.method.toUpperCase()}</strong>
+                            <div className="api-method-name">
+                                <strong className={`api-method api-method-${api.method.toLowerCase()}`}>
+                                    {api.method.toUpperCase()}</strong>
                             </div>
                             &nbsp;
 
                             <div>{api.name}
                             </div>
+                            <div>
+                                <strong>{api.url}{api.endpoint}</strong>
+                            </div>
                         </div>
                     ))}
                 </div>
                 <div className="pas-collection-delete-btn">
-                <Button label={"Delete Collection"} type="primary" size="lg" handler={() => onCollectionDelete(collection.id) } />
+                    <Button label={"Delete Collection"} type="primary" size="lg" handler={() => onCollectionDelete(collection.id)} />
                 </div>
             </div>
-            </>
+        </>
     )
 }
 

@@ -6,7 +6,7 @@ interface ButtonProps {
     isDisabled?: boolean;
     handler: () => void;
 }
-const Button: React.FC<ButtonProps> = ({ label, type = 'primary', size = 'sm', isDisabled, handler }) => {
+const Button: React.FC<ButtonProps> = ({ label, type = 'primary', size = 'sm', isDisabled = false, handler }) => {
     return (
         <>
             <button className={`btn-${type} btn-${size}`} disabled={isDisabled} onClick={handler}>

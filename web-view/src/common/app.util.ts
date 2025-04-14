@@ -53,6 +53,7 @@ class AppUtil {
             keyPlaceholder: 'Header Key',
             valuePlaceholder: 'Header Value',
             descriptionPlaceholder: 'Description',
+            isChecked: true
         };
     }
     static getNewResponseTab(): ApiResponseTab {

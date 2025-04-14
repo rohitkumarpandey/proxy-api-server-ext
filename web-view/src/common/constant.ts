@@ -49,7 +49,7 @@ export const CONSTRAINT = {
             DESCRIPTION: 500
         },
         SERVER: {
-            API_NAME: 20,
+            API_NAME: 15,
             RESPONSE: {
                 TAB: {
                     NAME: 20

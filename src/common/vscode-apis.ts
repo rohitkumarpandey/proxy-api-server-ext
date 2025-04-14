@@ -93,14 +93,22 @@ const loadState = (context: vscode.ExtensionContext): State | undefined => {
             api.apiDetails.handler = (req: any, res: any) => {
                 setTimeout(() => {
                     try {
+                        // Set the response headers
+                        api.apiDetails.response.headers.forEach((header) => {
+                            if (header.name.trim() && header.value.trim()) {
+                                res.setHeader(header.name, header.value);
+                            }
+                        });
+                        // Set the response code
                         const responseBody = api.apiDetails.response.body.content;
                         if (responseBody && responseBody.trim()) {
-                            const parsedResponseBody = JSON.parse(responseBody);
-                            api.apiDetails.response.headers.forEach((header) => {
-                                if (header.name.trim() && header.value.trim()) {
-                                    res.setHeader(header.name, header.value);
-                                }
-                            });
+                            let parsedResponseBody;
+                            try {
+                                parsedResponseBody = JSON.parse(responseBody.trim());
+                            }
+                            catch (error) {
+                                parsedResponseBody = responseBody.trim();
+                            }
                             res.status(api.apiDetails.responseCode).json(parsedResponseBody);
                         } else {
                             // Send a void response if no content exists
