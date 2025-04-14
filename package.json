@@ -3,6 +3,14 @@
   "displayName": "Proxy API Server",
   "description": "",
   "version": "0.0.1",
+  "publisher": "ProxyApiServer",
+  "author": {
+    "name": "rohitkumarpandey"
+  },
+  "repository": {
+    "url": "https://github.com/rohitkumarpandey/proxy-api-server-ext",
+    "type": "git"
+  },
   "engines": {
     "vscode": "^1.97.0"
   },

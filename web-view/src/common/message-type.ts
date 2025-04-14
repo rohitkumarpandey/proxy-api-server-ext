@@ -16,6 +16,11 @@ export const MessageType: IMessageType = {
         message: 'Application server is live now!',
         messageType: 'success'
     },
+    APP_RESTARTING: {
+        code: 'APP_RESTARTING',
+        message: 'Application server is restarting...',
+        messageType: 'info'
+    },
     APP_STOPPED: {
         code: 'APP_STOPPED',
         message: 'Application server is stopped!',

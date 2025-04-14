@@ -1,71 +1,37 @@
-# proxy-api-server README
+# Proxy API Server Extension
 
-This is the README for your extension "proxy-api-server". After writing up a brief description, we recommend including the following sections.
-
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+The **Proxy API Server Extension** is a Visual Studio Code extension designed to help developers quickly set up a local server for mocking API responses. This extension simplifies the process of creating and managing mock APIs, making it easier to test and debug applications without relying on external services.
 
 ---
 
-## Following extension guidelines
+## Features
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+- **Start a Mock Server**: Instantly start a local server to serve mock API responses.
+- **Customizable Responses**: Define response bodies, headers, and HTTP status codes for your APIs.
+- **Dynamic API Management**: Add, update, or delete APIs on the fly.
+- **Simulate Latency**: Test your application under different network conditions by simulating response delays.
+- **Integrated Web Interface**: Manage APIs through an intuitive web-based interface embedded in the extension.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+---
 
-## Working with Markdown
+## Installation
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+1. Install the extension from the Visual Studio Code Marketplace.
+2. Ensure you have Node.js installed on your system.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+---
 
-## For more information
+## Usage
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+### 1. Start the Server
+- Click on the Proxy API Server in the status bar to start the server.
+- Alternatively, open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac).
+- Run the command: **"Proxy API Server: Start Server"**.
 
-**Enjoy!**
+### 2. Define Mock APIs
+- Use the web interface to create and configure APIs.
+- Specify the HTTP method, endpoint, response body, headers, and status code.
+
+### 3. Test Your APIs
+- Access your mock APIs at `http://localhost:5256/<endpoint>` using tools like Postman, cURL, or your application.
+- Access server status at `http://localhost:5256/pas/status` to view the details like server status, port and list of mocked apis.

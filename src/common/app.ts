@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { ExtensionContext, StatusBarAlignment, Uri } from 'vscode';
-import { registerCommands, addNewWebViewTab, addStatusBarItem, saveState, saveWebViewState} from './vscode-apis';
+import { registerCommands, addNewWebViewTab, addStatusBarItem, saveState, saveWebViewState, getExtensionState, saveExtensionState } from './vscode-apis';
 import { COMMAND, CONSTANT } from './constant';
 import path from 'path';
 import { MessageReceiver } from '../model/message';
@@ -42,8 +42,11 @@ const loadLandingTab = (context: ExtensionContext) => {
 }
 
 const initializeApp = (context: ExtensionContext) => {
-    // for development purpose only
-    loadLandingTab(context);
+    const extensionState = getExtensionState(context);
+    if (extensionState && extensionState.isFirstTimeInstalled) {
+        saveExtensionState(context, { isFirstTimeInstalled: false });
+        loadLandingTab(context);
+    }
     const disposables = registerCommands(COMMAND, context);
     context.subscriptions.push(...disposables);
     addStatusBarItem(StatusBarAlignment.Right, 100, COMMAND.LANDING_TAB);

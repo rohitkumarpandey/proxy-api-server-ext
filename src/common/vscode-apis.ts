@@ -5,6 +5,7 @@ import { CONSTANT } from './constant';
 import { State, Collection, Api } from '../model/state';
 import { MessageReceiver } from '../model/message';
 import { WebViewApi, WebViewCollection, WebViewState } from '../model/web-state.model';
+import { ExtensionState } from '../model/extension-state.model';
 const toastMessage = (message: string): void => {
     vscode.window.showInformationMessage(`Proxy API Server: ${message}`);
 }
@@ -126,6 +127,12 @@ const loadState = (context: vscode.ExtensionContext): State | undefined => {
 const deleteState = (context: vscode.ExtensionContext): Thenable<void> => {
     return context.globalState.update(CONSTANT.IDENTIFIER.GLOBAL_STATE, undefined);
 }
+const saveExtensionState = (context: vscode.ExtensionContext, value: ExtensionState): void => {
+    context.globalState.update(CONSTANT.IDENTIFIER.EXTENSION_STATE, value);
+}
+const getExtensionState = (context: vscode.ExtensionContext): ExtensionState | undefined => {
+    return context.globalState.get(CONSTANT.IDENTIFIER.EXTENSION_STATE);
+}
 
 const postMessageToWebview = (command: string, data?: any) => {
     if (webviewPanel) {
@@ -144,5 +151,7 @@ export {
     saveState,
     deleteState,
     saveWebViewState,
-    postMessageToWebview
+    postMessageToWebview,
+    saveExtensionState,
+    getExtensionState,
 }
