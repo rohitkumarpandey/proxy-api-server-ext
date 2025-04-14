@@ -1,9 +1,10 @@
 {
   "name": "proxy-api-server",
   "displayName": "Proxy API Server",
-  "description": "",
-  "version": "0.0.1",
+  "description": "Quickly set up a local server for mocking API responses.",
+  "version": "0.0.4",
   "publisher": "ProxyApiServer",
+  "icon": "web-view/dist/logo-128.png",
   "author": {
     "name": "rohitkumarpandey"
   },

@@ -4,4 +4,3 @@ out
 *test*
 .DS_Store
 tsconfig.tsbuildinfo
-*.vsix
