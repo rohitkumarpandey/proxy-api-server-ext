@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import './loading.scss';
-import { LoadingService } from '../service/loading.service';
+import { SubscriberService } from '../service/subscriber.service';
 const LoadingComponent: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     useEffect(() => {
         // Subscribe to the loading$ observable
-        const subscription = LoadingService.loading$.subscribe((loading) => {
+        const subscription = SubscriberService.loading$.subscribe((loading) => {
             setIsLoading(loading);
         });
         return () => subscription.unsubscribe();

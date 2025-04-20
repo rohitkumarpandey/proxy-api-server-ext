@@ -204,8 +204,7 @@ input[type="radio"] {
       text-align: center;
       font-weight: bold;
       color: vars.$brand-color;
-      height: 20%;
-
+      padding: 8px 0;
       &.app-status-success {
         background-color: green;
         color: white;

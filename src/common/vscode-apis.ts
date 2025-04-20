@@ -6,8 +6,30 @@ import { State, Collection, Api } from '../model/state';
 import { MessageReceiver } from '../model/message';
 import { WebViewApi, WebViewCollection, WebViewState } from '../model/web-state.model';
 import { ExtensionState } from '../model/extension-state.model';
+let webviewPanel: vscode.WebviewPanel | undefined;
 const toastMessage = (message: string): void => {
     vscode.window.showInformationMessage(`Proxy API Server: ${message}`);
+}
+
+
+const checkIfWebviewIsOpen = (): boolean => {
+    return webviewPanel !== undefined;
+}
+
+const displayExisitngWebView = (context: vscode.ExtensionContext): void => {
+    if (webviewPanel) {
+        webviewPanel.reveal(vscode.ViewColumn.One);
+        webviewPanel.webview.postMessage({
+            command: 'loadWebViewState',
+            data: loadWebViewState(context, false)
+        });
+    }
+}
+
+const clearWebView = (): void => {
+    if (webviewPanel) {
+        webviewPanel = undefined;
+    }
 }
 
 const registerCommands = (command: Command, context: vscode.ExtensionContext): vscode.Disposable[] => {
@@ -18,7 +40,6 @@ const registerCommands = (command: Command, context: vscode.ExtensionContext): v
     });
     return disposables;
 }
-let webviewPanel: vscode.WebviewPanel | undefined;
 const addNewWebViewTab = <T, R>(id: string, title: string, content: string, context: vscode.ExtensionContext, uris: { [identifier: string]: vscode.Uri },
     messageReceiver: (message: MessageReceiver<T, R>) => void, onDidDispose: (context: vscode.ExtensionContext) => void
 ): void => {
@@ -49,11 +70,12 @@ const addNewWebViewTab = <T, R>(id: string, title: string, content: string, cont
     );
     panel.webview.postMessage({
         command: 'loadWebViewState',
-        data: loadWebViewState(context) // Replace with your actual collections data
+        data: loadWebViewState(context)
     });
     panel.onDidDispose(() => {
         // When the panel is closed, cancel any future updates to the webview content
         onDidDispose(context);
+        clearWebView();
     }
     );
     webviewPanel = panel;
@@ -76,9 +98,9 @@ const saveWebViewState = (context: vscode.ExtensionContext, value: WebViewState 
         context.globalState.update(CONSTANT.IDENTIFIER.WEB_STATE, value);
     }
 }
-const loadWebViewState = (context: vscode.ExtensionContext): WebViewState | undefined => {
+const loadWebViewState = (context: vscode.ExtensionContext, loadingFirstTime: boolean = true): WebViewState | undefined => {
     const state: WebViewState | undefined = context.globalState.get(CONSTANT.IDENTIFIER.WEB_STATE);
-    if (state) {
+    if (state && loadingFirstTime) {
         state.collections.forEach((collection: WebViewCollection) => {
             collection.api.forEach((api: WebViewApi) => {
                 api.islive = false;
@@ -154,4 +176,6 @@ export {
     postMessageToWebview,
     saveExtensionState,
     getExtensionState,
+    checkIfWebviewIsOpen,
+    displayExisitngWebView
 }

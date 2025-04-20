@@ -1,16 +1,10 @@
-import { BehaviorSubject } from "rxjs/internal/BehaviorSubject";
+import { SubscriberService } from "./subscriber.service";
 
 export class LoadingService {
-    private static loadingSubject = new BehaviorSubject<boolean>(false);
-
-    static get loading$() {
-        return this.loadingSubject.asObservable();
-    }
     static show() {
-        this.loadingSubject.next(true);
+        SubscriberService.showLoading();
     }
     static hide() {
-        this.loadingSubject.next(false);
+        SubscriberService.hideLoading();
     }
-
 }

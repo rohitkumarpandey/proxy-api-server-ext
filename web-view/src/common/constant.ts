@@ -4,7 +4,7 @@ export const CONSTANT = {
     DEFAULT: {
         COLLECTION: {
             NAME: 'New Collection',
-            DESCRIPTION: 'New Collection'
+            DESCRIPTION: 'New Collection Description'
         },
         API: {
             NAME: 'New Request',
