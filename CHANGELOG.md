@@ -1,4 +1,12 @@
 # Change Log
+## [0.0.6] - 2025-05-11
+### Fixed
+-  Bug fixed and app stability.
+
+## [0.0.5] - 2025-05-11
+### Fixed
+-  Bug fixed and app stability.
+
 ## [0.0.4] - 2025-04-14
 ### Added
 - Excluded files to be added in bundle size.

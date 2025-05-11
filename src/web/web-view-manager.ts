@@ -43,11 +43,9 @@ export class WebViewManager {
     }
     public displayWebViewPanel<T, R>(messageReceiver: (message: MessageReceiver<T, R>, context: ExtensionContext) => void, onDispose: (context: ExtensionContext) => void, onSuccess: (context: ExtensionContext) => any): void {
         if (this.checkIfWebviewIsOpen()) {
-            console.log('Webview is already open. Reusing the existing webview.');
             this.displayExisitngWebView(this.globalContext);
             restartServer(this.globalContext);
         } else {
-            console.log('Creating a new webview panel.');
             this.webviewPanel = addNewWebViewTab(CONSTANT.EXTENSION.STATUSBAR_BUTTON, CONSTANT.EXTENSION.TITLE, this.htmlContent, this.globalContext, this.uris, messageReceiver, {
                 command: 'loadWebViewState',
                 data: (context: ExtensionContext) => this.loadWebViewState(context)
@@ -74,7 +72,6 @@ export class WebViewManager {
     }
     private loadWebViewState(context: ExtensionContext, loadingFirstTime: boolean = true): WebViewState | undefined {
         const state: WebViewState | undefined = context.globalState.get(CONSTANT.IDENTIFIER.WEB_STATE);
-        console.log('Loading web view state:', state);
         if (state?.collections && loadingFirstTime) {
             state.collections.forEach((collection: WebViewCollection) => {
                 collection.api.forEach((api: WebViewApi) => {
