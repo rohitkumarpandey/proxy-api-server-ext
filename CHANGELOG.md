@@ -1,14 +1,4 @@
 # Change Log
-
-All notable changes to the "proxy-api-server" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Input validations
-
-
 ## [0.0.4] - 2025-04-14
 ### Added
 - Excluded files to be added in bundle size.

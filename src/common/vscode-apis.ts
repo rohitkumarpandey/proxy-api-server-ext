@@ -1,34 +1,38 @@
 
-import * as vscode from 'vscode';
+import { commands, ExtensionContext, StatusBarAlignment, StatusBarItem, Uri, ViewColumn, WebviewPanel, window, Disposable } from 'vscode';
 import { Command, CommandDetails } from '../model/command';
-import { CONSTANT } from './constant';
 import { State, Collection, Api } from '../model/state';
 import { MessageReceiver } from '../model/message';
-import { WebViewApi, WebViewCollection, WebViewState } from '../model/web-state.model';
+import { WebViewState } from '../model/web-state.model';
 import { ExtensionState } from '../model/extension-state.model';
+import { PASStorageService } from './vscode-storage.service';
+let webviewPanel: WebviewPanel | undefined;
+let persistContext: ExtensionContext | undefined;
+
 const toastMessage = (message: string): void => {
-    vscode.window.showInformationMessage(`Proxy API Server: ${message}`);
+    window.showInformationMessage(`Proxy API Server: ${message}`);
 }
 
-const registerCommands = (command: Command, context: vscode.ExtensionContext): vscode.Disposable[] => {
-    const disposables: vscode.Disposable[] = [];
+const registerCommands = (command: Command, context: ExtensionContext): Disposable[] => {
+    const disposables: Disposable[] = [];
     Object.keys(command).forEach(key => {
         const com = command[key];
-        disposables.push(vscode.commands.registerCommand(com.name, com.callback(context)));
+        disposables.push(commands.registerCommand(com.name, com.callback(context)));
     });
     return disposables;
-}
-let webviewPanel: vscode.WebviewPanel | undefined;
-const addNewWebViewTab = <T, R>(id: string, title: string, content: string, context: vscode.ExtensionContext, uris: { [identifier: string]: vscode.Uri },
-    messageReceiver: (message: MessageReceiver<T, R>) => void, onDidDispose: (context: vscode.ExtensionContext) => void
-): void => {
-    const panel = vscode.window.createWebviewPanel(
+};
+const addNewWebViewTab = <T, R>(id: string, title: string, content: string, context: ExtensionContext, uris: { [identifier: string]: Uri },
+    messageReceiver: (message: MessageReceiver<T, R>, context: ExtensionContext) => void,
+    postMessage: { command: string, data: (context: ExtensionContext) => WebViewState | undefined }, onDidDispose: (context: ExtensionContext) => void
+): WebviewPanel => {
+    persistContext = context;
+    const panel = window.createWebviewPanel(
         id,
         title,
-        vscode.ViewColumn.One,
+        ViewColumn.One,
         {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.file(context.extensionPath)]
+            localResourceRoots: [Uri.file(context.extensionPath)]
         }
     );
 
@@ -39,28 +43,30 @@ const addNewWebViewTab = <T, R>(id: string, title: string, content: string, cont
             content = content.replaceAll(key, scriptUri.toString());
         });
     }
-    panel.webview.html = content;
     panel.webview.onDidReceiveMessage(
         (message: MessageReceiver<T, R>) => {
-            messageReceiver(message);
+            messageReceiver(message, context);
         },
         undefined,
         context.subscriptions
     );
     panel.webview.postMessage({
-        command: 'loadWebViewState',
-        data: loadWebViewState(context) // Replace with your actual collections data
+        command: postMessage.command,
+        data: postMessage.data(context)
     });
     panel.onDidDispose(() => {
         // When the panel is closed, cancel any future updates to the webview content
         onDidDispose(context);
     }
     );
+
+    panel.webview.html = content;
     webviewPanel = panel;
+    return panel;
 }
 
-const addStatusBarItem = (alignment: vscode.StatusBarAlignment, priority: number, command: CommandDetails): vscode.StatusBarItem => {
-    const statusBarItem = vscode.window.createStatusBarItem(alignment, priority);
+const addStatusBarItem = (alignment: StatusBarAlignment, priority: number, command: CommandDetails): StatusBarItem => {
+    const statusBarItem = window.createStatusBarItem(alignment, priority);
     statusBarItem.text = command.title;
     statusBarItem.command = command.name;
     statusBarItem.tooltip = command.tooltip;
@@ -68,27 +74,17 @@ const addStatusBarItem = (alignment: vscode.StatusBarAlignment, priority: number
     return statusBarItem;
 }
 
-const saveState = (context: vscode.ExtensionContext, value: State): void => {
-    context.globalState.update(CONSTANT.IDENTIFIER.GLOBAL_STATE, value);
+const saveState = (context: ExtensionContext, value: State): void => {
+    PASStorageService.saveServerState(context, value);
 }
-const saveWebViewState = (context: vscode.ExtensionContext, value: WebViewState | undefined): void => {
+const saveWebViewState = (context: ExtensionContext, value: WebViewState | undefined): void => {
     if (value) {
-        context.globalState.update(CONSTANT.IDENTIFIER.WEB_STATE, value);
+        PASStorageService.saveWebSiteViewState(context, value);
     }
 }
-const loadWebViewState = (context: vscode.ExtensionContext): WebViewState | undefined => {
-    const state: WebViewState | undefined = context.globalState.get(CONSTANT.IDENTIFIER.WEB_STATE);
-    if (state) {
-        state.collections.forEach((collection: WebViewCollection) => {
-            collection.api.forEach((api: WebViewApi) => {
-                api.islive = false;
-            })
-        })
-    }
-    return state;
-}
-const loadState = (context: vscode.ExtensionContext): State | undefined => {
-    const state: State | undefined = context.globalState.get(CONSTANT.IDENTIFIER.GLOBAL_STATE);
+
+const loadState = (context: ExtensionContext): State | undefined => {
+    const state: State | undefined = PASStorageService.getServerState(context);
     state && state.collections.forEach((collection: Collection) => {
         collection.apis.forEach((api: Api) => {
             api.apiDetails.handler = (req: any, res: any) => {
@@ -124,14 +120,15 @@ const loadState = (context: vscode.ExtensionContext): State | undefined => {
     });
     return state;
 }
-const deleteState = (context: vscode.ExtensionContext): Thenable<void> => {
-    return context.globalState.update(CONSTANT.IDENTIFIER.GLOBAL_STATE, undefined);
+
+const deleteStates = (): void => {
+    PASStorageService.deleteAllStates(persistContext!);
 }
-const saveExtensionState = (context: vscode.ExtensionContext, value: ExtensionState): void => {
-    context.globalState.update(CONSTANT.IDENTIFIER.EXTENSION_STATE, value);
+const saveExtensionState = (context: ExtensionContext, value: ExtensionState): void => {
+    PASStorageService.saveExtensionState(context, value);
 }
-const getExtensionState = (context: vscode.ExtensionContext): ExtensionState | undefined => {
-    return context.globalState.get(CONSTANT.IDENTIFIER.EXTENSION_STATE);
+const getExtensionState = (context: ExtensionContext): ExtensionState | undefined => {
+    return PASStorageService.getExtensionState(context);
 }
 
 const postMessageToWebview = (command: string, data?: any) => {
@@ -149,9 +146,9 @@ export {
     addStatusBarItem,
     loadState,
     saveState,
-    deleteState,
+    deleteStates,
     saveWebViewState,
     postMessageToWebview,
     saveExtensionState,
-    getExtensionState,
+    getExtensionState
 }

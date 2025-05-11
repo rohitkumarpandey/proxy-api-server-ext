@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import SidebarComponent from './components/sidebar.component';
 import './App.scss';
 import ServerComponent from './components/server.component';
@@ -21,7 +21,10 @@ function App() {
   const [collections, setCollections] = useState<Collection[]>([
     AppUtil.getNewCollection()
   ]);
-
+  const location = useLocation();
+  if (location.pathname === '/index.html') {
+    navigate('/');
+  }
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const { command, data } = event.data;
@@ -30,6 +33,10 @@ function App() {
         if (data && data.collections) {
           setCollections(data.collections);
         }
+      }
+      if (command === 'serverStarting') {
+        LoadingService.show();
+        SubscriberService.notifyApplicationStatus(MessageType.APP_STARTING);
       }
       if (command === 'serverStarted') {
         SubscriberService.notifyApplicationStatus(MessageType.APP_LIVE);
@@ -41,7 +48,16 @@ function App() {
       }
       if (command === 'serverStopped') {
         SubscriberService.notifyApplicationStatus(MessageType.APP_STOPPED);
+        ExtensionService.saveWebViewState({ collections: collections });
         setServerLive(false);
+        LoadingService.hide();
+      }
+      if (command === 'serverError') {
+        SubscriberService.notifyApplicationStatus(MessageType.APP_SERVER_ERROR);
+        LoadingService.hide();
+      }
+      if (command === 'error') {
+        SubscriberService.notifyApplicationStatus(MessageType.ERROR);
         LoadingService.hide();
       }
     };
@@ -55,8 +71,10 @@ function App() {
   }, []);
 
   const updateCollections = (collections: Collection[]) => {
+    LoadingService.show();
     setCollections(collections);
     ExtensionService.saveWebViewState({ collections: collections });
+    LoadingService.hide();
   }
   const addCollectionBtnHandler = (collection: Collection) => {
     updateCollections([...collections, collection]);
@@ -143,6 +161,9 @@ function App() {
   const deleteCollection = (collectionId: string) => {
     const updatedCollections = collections.filter(collection => collection.id !== collectionId);
     updateCollections(updatedCollections);
+    if (serverLive) {
+      startLiveServer(updatedCollections);
+    }
     navigate('/');
   }
   const deleteApiHandler = (collectionId: string, apiId: string) => {
@@ -154,7 +175,7 @@ function App() {
       return collection;
     });
     updateCollections(updatedCollections);
-    if(serverLive) {
+    if (serverLive) {
       startLiveServer(updatedCollections);
     }
     navigate('/');

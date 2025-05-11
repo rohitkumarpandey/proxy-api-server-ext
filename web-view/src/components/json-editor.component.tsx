@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import './json-editor.scss';
+import { LoadingService } from '../service/loading.service';
 
 const JsonEditor = forwardRef<{ formatJson: () => boolean }, { initialJson: string, onChange: (json: string) => void }>(({ initialJson, onChange }, ref) => {
     const [json, setJson] = useState<string>(initialJson);
@@ -14,14 +15,21 @@ const JsonEditor = forwardRef<{ formatJson: () => boolean }, { initialJson: stri
 
     // Synchronize the height of the line numbers and textarea
     useEffect(() => {
+        LoadingService.show();
         if (lineNumbersRef.current && textareaRef.current) {
+            const textarea = textareaRef.current;
+            const lineNumbersDiv = lineNumbersRef.current;
+
             // Reset height to auto to allow recalculation
-            textareaRef.current.style.height = 'auto';
-            lineNumbersRef.current.style.height = 'auto';
-            const scrollHeight = textareaRef.current.scrollHeight; // Get the scroll height of the textarea
-            lineNumbersRef.current.style.height = `${scrollHeight}px`; // Set the height of the line numbers
-            textareaRef.current.style.height = `${scrollHeight}px`; // Set the height of the textarea
+            textarea.style.height = 'auto';
+            lineNumbersDiv.style.height = 'auto';
+
+            // Calculate and set the new height
+            const scrollHeight = textarea.scrollHeight;
+            textarea.style.height = `${scrollHeight}px`;
+            lineNumbersDiv.style.height = `${scrollHeight}px`;
         }
+        LoadingService.hide();
     }, [json, lineNumbers]);
 
     const handleJsonChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
