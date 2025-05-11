@@ -52,6 +52,14 @@ function App() {
         setServerLive(false);
         LoadingService.hide();
       }
+      if (command === 'serverError') {
+        SubscriberService.notifyApplicationStatus(MessageType.APP_SERVER_ERROR);
+        LoadingService.hide();
+      }
+      if (command === 'error') {
+        SubscriberService.notifyApplicationStatus(MessageType.ERROR);
+        LoadingService.hide();
+      }
     };
 
     window.addEventListener('message', handleMessage);

@@ -31,6 +31,11 @@ export const MessageType: IMessageType = {
         message: 'Application server is stopped!',
         messageType: 'warning'
     },
+    APP_SERVER_ERROR: {
+        code: 'APP_SERVER_ERROR',
+        message: 'Error occurred while starting the server!',
+        messageType: 'error'
+    },
     ERROR: {
         code: 'ERROR',
         message: 'Error occurred',
