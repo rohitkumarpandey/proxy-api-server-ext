@@ -1,4 +1,4 @@
-import { displayName, version } from "../../package.json"
+import { displayName, version } from "../../../package.json"
 const LandingPageComponent: React.FC<{}> = () => {
     return (
         <div className="landing-page">

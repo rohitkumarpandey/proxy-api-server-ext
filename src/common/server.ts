@@ -3,7 +3,22 @@ import * as vscodeApi from './vscode-apis';
 import * as vscode from 'vscode';
 import express from 'express';
 import { Api, Collection, State } from '../model/state';
-const PORT = 5256;
+import net from 'net';
+
+function findAvailablePort(port: number): Promise<number> {
+    return new Promise((resolve) => {
+        const server = net.createServer();
+
+        server.listen(port, () => {
+            server.close(() => resolve(port));
+        });
+
+        server.on('error', () => {
+            resolve(findAvailablePort(port + 1)); // Increment port and retry
+        });
+    });
+};
+let PORT = 5256;
 let server: http.Server;
 let app = express();
 
@@ -56,11 +71,13 @@ function loadApis(context: vscode.ExtensionContext) {
     });
 }
 
-const startServer = (context: vscode.ExtensionContext) => {
+const startServer = async (context: vscode.ExtensionContext) => {
     vscodeApi.postMessageToWebview('serverStarting');
     if (isServerRunning()) {
         stopServer(context);
     }
+    PORT = await findAvailablePort(PORT);
+    
     loadApis(context);
     server = app.listen(PORT, 'localhost', (err) => {
         if (err) {

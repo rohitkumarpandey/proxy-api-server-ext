@@ -22,7 +22,7 @@ export const CONSTANT = {
     IDENTIFIER: {
         SCRIPT_URI: '/index.js',
         STYLE_URI: '/index.css',
-        LOGO_URI: '/logo.webp',
+        LOGO_URI: '/logo.png',
         GLOBAL_STATE: 'pas-state',
         WEB_STATE: 'pas-web-state',
         EXTENSION_STATE: 'pas-extension-state',

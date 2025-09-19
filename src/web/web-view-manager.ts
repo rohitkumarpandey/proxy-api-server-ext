@@ -21,7 +21,7 @@ export class WebViewManager {
 
         const scriptPathOnDisk = Uri.file(path.join(context.extensionPath, 'web-view', 'dist', 'index.js'));
         const stylePathOnDisk = Uri.file(path.join(context.extensionPath, 'web-view', 'dist', 'index.css'));
-        const logoPathOnDisk = Uri.file(path.join(context.extensionPath, 'web-view', 'dist', 'logo.webp'));
+        const logoPathOnDisk = Uri.file(path.join(context.extensionPath, 'web-view', 'dist', 'logo.png'));
         const uris: { [identifire: string]: Uri } = {};
         uris[CONSTANT.IDENTIFIER.SCRIPT_URI] = scriptPathOnDisk;
         uris[CONSTANT.IDENTIFIER.STYLE_URI] = stylePathOnDisk;

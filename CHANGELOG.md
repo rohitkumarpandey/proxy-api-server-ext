@@ -1,4 +1,9 @@
 # Change Log
+## [0.0.7] - 2025-09-20
+### Replaced
+- Custom Json editor with code mirror.
+- Changed logo
+- optimized space
 ## [0.0.6] - 2025-05-11
 ### Fixed
 -  Bug fixed and app stability.
