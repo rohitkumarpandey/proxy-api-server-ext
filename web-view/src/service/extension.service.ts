@@ -1,8 +1,21 @@
 import { State } from "../model/api-server.model";
 import { WebViewState } from "../model/web-state.model";
 
-declare function acquireVsCodeApi(): any;
-const vscode = acquireVsCodeApi();
+declare global {
+    interface Window {
+        acquireVsCodeApi?: () => {
+            postMessage: (message: any) => void;
+            setState: (state: any) => void;
+            getState: () => any;
+        };
+    }
+}
+
+const vscode = window.acquireVsCodeApi ? window.acquireVsCodeApi() : {
+    postMessage: (msg: any) => console.log("Mock postMessage:", msg),
+    setState: (_: any) => { },
+    getState: () => undefined,
+};
 
 
 export class ExtensionService {

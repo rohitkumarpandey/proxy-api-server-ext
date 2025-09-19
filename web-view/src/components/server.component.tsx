@@ -77,7 +77,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({ apiServerHandler, api
         const filteredApi = api.responseTabs.filter(tab => tab.id != tabId);
         const updatedApi = { ...api, responseTabs: [...filteredApi] };
         updateApi(updatedApi);
-        const lastResponseTabId = updatedApi.responseTabs.slice(-1).at(0)?.id;
+        const lastResponseTabId = updatedApi.responseTabs.length > 0 ? updatedApi.responseTabs[updatedApi.responseTabs.length - 1].id : undefined;
         if (lastResponseTabId) {
             renderResponseTab(lastResponseTabId);
         }

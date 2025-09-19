@@ -2,9 +2,9 @@
   "name": "proxy-api-server",
   "displayName": "Proxy API Server",
   "description": "Quickly set up a local server for mocking API responses.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "ProxyApiServer",
-  "icon": "web-view/dist/logo-128.png",
+  "icon": "web-view/dist/logo.png",
   "author": {
     "name": "rohitkumarpandey"
   },
@@ -32,6 +32,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
+    "vscode:package": "vsce package",
     "compile:web-build": "npm run --prefix ./web-view build && npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
